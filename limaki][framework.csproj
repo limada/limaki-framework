@@ -1,0 +1,250 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{1573FE6B-0434-4692-8226-D515A616EE9B}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Limaki</RootNamespace>
+    <AssemblyName>Limaki.Common</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug 4.0|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Debug 4.0\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;NET40</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <CodeAnalysisLogFile>bin\Debug\Limaki.Common.dll.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
+    <CodeAnalysisIgnoreBuiltInRuleSets>false</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
+    <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
+    <CodeAnalysisFailOnMissingRules>false</CodeAnalysisFailOnMissingRules>
+  </PropertyGroup>
+  <PropertyGroup>
+    <DefineConstants Condition=" !$(DefineConstants.Contains(';NET')) ">$(DefineConstants);$(TargetFrameworkVersion.Replace("v", "NET").Replace(".", ""))</DefineConstants>
+    <DefineConstants Condition=" $(DefineConstants.Contains(';NET')) ">$(DefineConstants.Remove($(DefineConstants.LastIndexOf(";NET"))));$(TargetFrameworkVersion.Replace("v", "NET").Replace(".", ""))</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.Linq" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Limaki.Common\BooleanFormatProvider.cs" />
+    <Compile Include="Limaki.Common\Collections\BindingCollection.cs" />
+    <Compile Include="Limaki.Common\Collections\MappingCollection.cs" />
+    <Compile Include="Limaki.Common\FileHelpers.cs" />
+    <Compile Include="Limaki.Common\Linqish\ExpressionChanger.cs" />
+    <Compile Include="Limaki.Common\Linqish\ExpressionChangerBase.cs" />
+    <Compile Include="Limaki.Common\Linqish\ExpressionChanger_S_T.cs" />
+    <Compile Include="Limaki.Common\Linqish\ExpressionProjector.cs" />
+    <Compile Include="Limaki.Common\Linqish\ExpressionConstantBuilder.cs" />
+    <Compile Include="Limaki.Common\Linqish\Mapping.cs" />
+    <Compile Include="Limaki.Common\Services\ConfigurationPropertyAttribute.cs" />
+    <Compile Include="Limaki.Common\UnitsOfWork\PredicateContainer.cs" />
+    <Compile Include="Limaki.Common\UnitsOfWork\QueryPredicates.cs" />
+    <Compile Include="Limaki.Common\Scheduler.cs" />
+    <Compile Include="Limaki.Common\Services\ConfigurationSectionAttribute.cs" />
+    <Compile Include="Limaki.Common\Services\ConfigurationSettings.cs" />
+    <Compile Include="Limaki.Common\UnitsOfWork\ChangeSet.cs" />
+    <Compile Include="Limaki.Common\UnitsOfWork\ChangeSetContainer.cs" />
+    <Compile Include="Limaki.Common\Linqish\EnumerableExtensions.cs" />
+    <Compile Include="Limaki.Common\Collections\IdentityList.cs" />
+    <Compile Include="Limaki.Common\Collections\IMultiDictionary.cs" />
+    <Compile Include="Limaki.Common\Collections\MultiDictionary.cs" />
+    <Compile Include="Limaki.Common\Collections\Set.cs" />
+    <Compile Include="Limaki.Common\Collections\VarianceCollection.cs" />
+    <Compile Include="Limaki.Common\Copier.cs" />
+    <Compile Include="Limaki.Common\DelegatePool.cs" />
+    <Compile Include="Limaki.Common\EventArgs_T.cs" />
+    <Compile Include="Limaki.Common\Collections\IdentityMap.cs" />
+    <Compile Include="Limaki.Common\Factory.cs" />
+    <Compile Include="Limaki.Common\IFactory.cs" />
+    <Compile Include="Limaki.Common\IOC\ApplicationContext.cs" />
+    <Compile Include="Limaki.Common\IOC\ContextProcessor.cs" />
+    <Compile Include="Limaki.Common\IOC\ContextRecourceLoader.cs" />
+    <Compile Include="Limaki.Common\IOC\IApplicationContext.cs" />
+    <Compile Include="Limaki.Common\IOC\IContextRecourceLoader.cs" />
+    <Compile Include="Limaki.Common\IOC\IPool.cs" />
+    <Compile Include="Limaki.Common\IOC\Pool.cs" />
+    <Compile Include="Limaki.Common\IOC\Registry.cs" />
+    <Compile Include="Limaki.Common\Isaac.cs" />
+    <Compile Include="Limaki.Common\KeyMaker.cs" />
+    <Compile Include="Limaki.Common\Linqish\CompareExpressionBuilder.cs" />
+    <Compile Include="Limaki.Common\Linqish\ExpressionUtils.cs" />
+    <Compile Include="Limaki.Common\Linqish\MemberByNameExpressionBuilder.cs" />
+    <Compile Include="Limaki.Common\Linqish\PropertyExtractor.cs" />
+    <Compile Include="Limaki.Common\UnitsOfWork\ListContainer.cs" />
+    <Compile Include="Limaki.Common\UnitsOfWork\MappedContainer.cs" />
+    <Compile Include="Limaki.Common\UnitsOfWork\Paging.cs" />
+    <Compile Include="Limaki.Common\UnitsOfWork\PagingCollection.cs" />
+    <Compile Include="Limaki.Common\UnitsOfWork\PagingList.cs" />
+    <Compile Include="MetaLinq\Collections\EditableElementInitCollection.cs" />
+    <Compile Include="MetaLinq\Collections\EditableExpressionCollection.cs" />
+    <Compile Include="MetaLinq\Collections\EditableMemberBindingCollection.cs" />
+    <Compile Include="MetaLinq\Collections\EditableMemberInfoCollection.cs" />
+    <Compile Include="MetaLinq\Expressions\EditableBinaryExpression.cs" />
+    <Compile Include="MetaLinq\Expressions\EditableConditionalExpression.cs" />
+    <Compile Include="MetaLinq\Expressions\EditableConstantExpression.cs" />
+    <Compile Include="MetaLinq\Expressions\EditableExpression.cs" />
+    <Compile Include="MetaLinq\Expressions\EditableInvocationExpression.cs" />
+    <Compile Include="MetaLinq\Expressions\EditableLambdaExpression.cs" />
+    <Compile Include="MetaLinq\Expressions\EditableListInitExpression.cs" />
+    <Compile Include="MetaLinq\Expressions\EditableMemberExpression.cs" />
+    <Compile Include="MetaLinq\Expressions\EditableMemberInitExpression.cs" />
+    <Compile Include="MetaLinq\Expressions\EditableMethodCallExpression.cs" />
+    <Compile Include="MetaLinq\Expressions\EditableNewArrayExpression.cs" />
+    <Compile Include="MetaLinq\Expressions\EditableNewExpression.cs" />
+    <Compile Include="MetaLinq\Expressions\EditableParameterExpression.cs" />
+    <Compile Include="MetaLinq\Expressions\EditableTypeBinaryExpression.cs" />
+    <Compile Include="MetaLinq\Expressions\EditableUnaryExpression.cs" />
+    <Compile Include="MetaLinq\Extensions\EditableExpressionExtensions.cs" />
+    <Compile Include="MetaLinq\Extensions\ExpressionExtensions.cs" />
+    <Compile Include="MetaLinq\Extensions\ReflectionExtensions.cs" />
+    <Compile Include="MetaLinq\Initializers\EditableElementInit.cs" />
+    <Compile Include="MetaLinq\Initializers\EditableMemberAssignment.cs" />
+    <Compile Include="MetaLinq\Initializers\EditableMemberBinding.cs" />
+    <Compile Include="MetaLinq\Initializers\EditableMemberListBinding.cs" />
+    <Compile Include="MetaLinq\Initializers\EditableMemberMemberBinding.cs" />
+    <Compile Include="Mono.Linq.Expressions\CombineExtensions.cs" />
+    <Compile Include="Mono.Linq.Expressions\CSharp.cs" />
+    <Compile Include="Mono.Linq.Expressions\CSharpWriter.cs" />
+    <Compile Include="Mono.Linq.Expressions\CustomExpression.cs" />
+    <Compile Include="Mono.Linq.Expressions\CustomExpressionVisitor.cs" />
+    <Compile Include="Mono.Linq.Expressions\DelegateConverter.cs" />
+    <Compile Include="Mono.Linq.Expressions\DoWhileExpression.cs" />
+    <Compile Include="Mono.Linq.Expressions\ExpressionExtensions.cs" />
+    <Compile Include="Mono.Linq.Expressions\ExpressionWriter.cs" />
+    <Compile Include="Mono.Linq.Expressions\FluentExtensions.cs" />
+    <Compile Include="Mono.Linq.Expressions\ForEachExpression.cs" />
+    <Compile Include="Mono.Linq.Expressions\ForExpression.cs" />
+    <Compile Include="Mono.Linq.Expressions\IExpressionWriter.cs" />
+    <Compile Include="Mono.Linq.Expressions\IFormatter.cs" />
+    <Compile Include="Mono.Linq.Expressions\PredicateBuilder.cs" />
+    <Compile Include="Mono.Linq.Expressions\TextFormatter.cs" />
+    <Compile Include="Mono.Linq.Expressions\UsingExpression.cs" />
+    <Compile Include="Mono.Linq.Expressions\WhileExpression.cs" />
+    <Compile Include="Limaki.Common\Reflections\Reflector.cs" />
+    <Compile Include="Limaki.FunctionPoints\FunctionPointCounter.cs" />
+    <Compile Include="Limaki.FunctionPoints\FunctionPointReport.cs" />
+    <Compile Include="Limaki.Common\Reflections\MemberReflectionCache.cs" />
+    <Compile Include="Limaki.Common\MonoTODOAttribute.cs" />
+    <Compile Include="Mono.System\Action.cs" />
+    <Compile Include="Mono.System\Lazy.cs" />
+    <Compile Include="Mono.System\Tuple.cs" />
+    <Compile Include="Mono.System\Tuples.cs" />
+    <Compile Include="PhoneticNet\ALevenshtein.cs" />
+    <Compile Include="PhoneticNet\AMetaphone.cs" />
+    <Compile Include="PhoneticNet\DaitchMokotoff.cs" />
+    <Compile Include="PhoneticNet\DamerauLevenshtein.cs" />
+    <Compile Include="PhoneticNet\DoubleMetaphone.cs" />
+    <Compile Include="PhoneticNet\IPhonetic.cs" />
+    <Compile Include="PhoneticNet\IStringCompare.cs" />
+    <Compile Include="PhoneticNet\Levenshtein.cs" />
+    <Compile Include="PhoneticNet\Metaphone.cs" />
+    <Compile Include="PhoneticNet\Soundex.cs" />
+    <Compile Include="Limaki.Common\RefAction.cs" />
+    <Compile Include="Limaki.Common\Services\BindingFlag.cs" />
+    <Compile Include="Limaki.Common\Services\ClientContext.cs" />
+    <Compile Include="Limaki.Common\Services\ClientHost.cs" />
+    <Compile Include="Limaki.Common\Services\HostBase.cs" />
+    <Compile Include="Limaki.Common\Services\IServiceBase.cs" />
+    <Compile Include="Limaki.Common\Services\IServiceSettings.cs" />
+    <Compile Include="Limaki.Common\Services\ServiceHost.cs" />
+    <Compile Include="Limaki.Common\Services\ServiceSettings.cs" />
+    <Compile Include="Limaki.Common\Services\WCFServer.cs" />
+    <Compile Include="Limaki.Common\UnitsOfWork\State.cs" />
+    <Compile Include="Limaki.Common\UnitsOfWork\StateMap.cs" />
+    <Compile Include="Limaki.Common\UnitsOfWork\Store.cs" />
+    <Compile Include="Limaki.Common\Trie\TrieQuery.cs" />
+    <Compile Include="Limaki.Common\Trie\TrieTree.cs" />
+    <Compile Include="Limaki.Common\Wrapper.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="MetaLinq\About.txt" />
+    <Content Include="Mono.Linq.Expressions\README.txt" />
+    <Content Include="PhoneticNet\About.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include=".NETFramework,Version=v4.0">
+      <Visible>False</Visible>
+      <ProductName>Microsoft .NET Framework 4 %28x86 and x64%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
