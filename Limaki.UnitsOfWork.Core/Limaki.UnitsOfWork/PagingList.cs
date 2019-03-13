@@ -16,7 +16,7 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 
-namespace Limaki.Common.UnitsOfWork {
+namespace Limaki.UnitsOfWork {
 
     public class PagingList<T>:PagingCollection<T>, IList<T> {
 

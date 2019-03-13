@@ -1,22 +1,10 @@
-﻿/*
- * Limaki 
- * 
- * This code is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.
- * 
- * Author: Lytico
- * Copyright (C) 2006-2011 Lytico
- *
- * http://www.limada.org
- * 
- */
-
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 
 namespace Limaki.Common {
+    
     public class KeyMaker {
+        
         protected static IEqualityComparer comparer = EqualityComparer<object>.Default;
 
         public static int GetHashCode<T1, T2>(T1 item1, T2 item2) {
@@ -29,11 +17,15 @@ namespace Limaki.Common {
             return h = (h << 5) - h + comparer.GetHashCode(item1);
         }
 
+        public static int AddHashCode (int h, int h1) {
+            return h = (h << 5) - h + h1;
+        }
+
         public static int GetHashCode(params object[] args) {
             if (args == null || args.Length == 0)
                 return 0;
             int h = comparer.GetHashCode(args[0]);
-            for(int i = 1;i<args.Length;i++)
+            for (int i = 1; i < args.Length; i++)
                 h = (h << 5) - h + comparer.GetHashCode(args[i]);
             return h;
         }

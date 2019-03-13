@@ -35,39 +35,29 @@ namespace Mono.Linq.Expressions {
 
 	public static class PredicateBuilder {
 
-        //public static Expression<Func<T, bool>> True<T> ()
-        //{
-        //    return Expression.Lambda<Func<T, bool>> (Expression.Constant (true), Expression.Parameter (typeof (T)));
-        //}
+		public static Expression<Func<T, bool>> True<T> ()
+		{
+			return Expression.Lambda<Func<T, bool>> (Expression.Constant (true), Expression.Parameter (typeof (T)));
+		}
 
-        //public static Expression<Func<T, bool>> False<T> ()
-        //{
-        //    return Expression.Lambda<Func<T, bool>> (Expression.Constant (false), Expression.Parameter (typeof (T)));
-        //}
-        
-        public static Expression<Func<T, bool>> True<T>() { return f => true; }
-        public static Expression<Func<T, bool>> False<T>() { return f => false; }
+		public static Expression<Func<T, bool>> False<T> ()
+		{
+			return Expression.Lambda<Func<T, bool>> (Expression.Constant (false), Expression.Parameter (typeof (T)));
+		}
 
 		public static Expression<Func<T, bool>> OrElse<T> (this Expression<Func<T, bool>> self, Expression<Func<T, bool>> expression)
 		{
-            if (self == null)
-                return expression;
 			return self.Combine (expression, Expression.OrElse);
 		}
 
 		public static Expression<Func<T, bool>> AndAlso<T> (this Expression<Func<T, bool>> self, Expression<Func<T, bool>> expression)
 		{
-            if (self == null)
-                return expression;
 			return self.Combine (expression, Expression.AndAlso);
 		}
 
 		public static Expression<Func<T, bool>> Not<T> (this Expression<Func<T, bool>> self)
 		{
-            if (self == null)
-                return null;
 			return self.Combine (Expression.Not);
-        }
-
-    }
+		}
+	}
 }

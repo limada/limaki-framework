@@ -24,6 +24,8 @@ namespace MetaLinq
     [KnownType(typeof(EditableUnaryExpression))]
     [KnownType(typeof(EditableMethodCallExpression))]
     [KnownType(typeof(EditableMemberAssignment))]
+    [KnownType(typeof(EditableLambdaExpression))]
+
     [XmlInclude(typeof(EditableMemberExpression))]
     [XmlInclude(typeof(EditableListInitExpression))]
     [XmlInclude(typeof(EditableNewExpression))]
@@ -39,6 +41,7 @@ namespace MetaLinq
     [XmlInclude(typeof(EditableUnaryExpression))]
     [XmlInclude(typeof(EditableMethodCallExpression))]    
     [XmlInclude(typeof(EditableMemberAssignment))]
+    [XmlInclude(typeof(EditableLambdaExpression))]
     public abstract class EditableExpression
     {        
         // Properties

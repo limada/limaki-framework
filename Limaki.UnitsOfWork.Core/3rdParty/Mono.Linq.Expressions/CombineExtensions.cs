@@ -32,8 +32,7 @@ using System.Linq;
 using System.Linq.Expressions;
 
 namespace Mono.Linq.Expressions {
-
-	public static class CombineExtensions {
+    public static class CombineExtensions {
 
 		public static Expression<T> Combine<[DelegateConstraint] T> (this Expression<T> self, Func<Expression, Expression> combinator) where T : class
 		{
@@ -49,10 +48,10 @@ namespace Mono.Linq.Expressions {
 
 		public static Expression<T> Combine<[DelegateConstraint] T> (this Expression<T> self, Expression<T> expression, Func<Expression, Expression, Expression> combinator) where T : class
 		{
+			if (self == null)
+				throw new ArgumentNullException ("self");
 			if (expression == null)
 				throw new ArgumentNullException ("expression");
-            if (self == null)
-                return expression;
 			if (combinator == null)
 				throw new ArgumentNullException ("combinator");
 

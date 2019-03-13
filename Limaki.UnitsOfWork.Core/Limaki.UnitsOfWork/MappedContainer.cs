@@ -14,22 +14,28 @@
 
 using System.Runtime.Serialization;
 using System;
+using Limaki.Common;
 using Limaki.Common.Collections;
 
-namespace Limaki.Common.UnitsOfWork {
+namespace Limaki.UnitsOfWork {
 
     [DataContract]
-    public abstract class MappedContainer : ListContainer {
-        
-        protected abstract IFactory CreateFactory();
-        bool _mapOwner = true;
-        protected bool MapOwner { get { return _mapOwner; } }
+    public class MappedContainer : ListContainer, IMappedContainer {
+
+        protected MappedContainer (IFactory factory) {
+            Factory = factory;
+        }
+
+        protected IFactory Factory { get; set; }
+
+		protected bool MapOwner { get; set; } = true;
+
         IdentityMap _map = null;
         public IdentityMap Map {
-            get { return _map ?? (_map = new IdentityMap { ItemFactory = CreateFactory() }); }
+            get { return _map ?? (_map = new IdentityMap { ItemFactory = Factory }); }
             set {
                 _map = value;
-                _mapOwner = false;
+                MapOwner = false;
             }
         }
 
@@ -42,11 +48,9 @@ namespace Limaki.Common.UnitsOfWork {
             }
         }
 
-        public abstract void ExpandItems();
-
         public override void Dispose(bool disposing) {
-            if (_mapOwner && _map != null) {
-                _map.Dispose(disposing);
+            if (MapOwner) {
+                _map?.Dispose(disposing);
             }
             _map = null;
             base.Dispose(disposing);

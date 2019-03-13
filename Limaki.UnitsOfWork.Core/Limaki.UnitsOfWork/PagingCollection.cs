@@ -13,15 +13,15 @@
  */
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Collections.Concurrent;
+using System.Collections.ObjectModel;
 
-namespace Limaki.Common.UnitsOfWork {
+namespace Limaki.UnitsOfWork {
 
     public class PagingCollection<T> : ICollection<T>, IPagingCollection, IDisposable {
         

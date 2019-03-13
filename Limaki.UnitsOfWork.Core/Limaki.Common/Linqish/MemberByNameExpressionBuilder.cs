@@ -8,7 +8,7 @@
  * Author: Lytico
  * Copyright (C) 2011 Lytico
  *
- * http://www.limada.org
+* http://www.limada.org
  * 
  */
 
@@ -19,12 +19,14 @@ using System.Linq.Expressions;
 using System.Reflection;
 
 namespace Limaki.Common.Linqish {
+    
     /// <summary>
     /// Builds Expressions and extends IQuerables
     /// where the Member-Type of an entity is unknown 
     /// but the Member-Name is known
     /// </summary>
     public class MemberByNameExpressionBuilder {
+
         #region IQuerable-Builder
         /// <summary>
         /// calls keySelector and with this result

@@ -12,12 +12,14 @@
  * 
  */
 
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Runtime.Serialization;
 using MetaLinq;
 
-namespace Limaki.Common.UnitsOfWork {
+namespace Limaki.UnitsOfWork {
+    
     /// <summary>
     /// Container to hold
     /// serializable Expressions 
@@ -25,6 +27,8 @@ namespace Limaki.Common.UnitsOfWork {
     /// </summary>
     [DataContract]
     public class PredicateContainer<T> where T : QueryPredicates {
+
+
         public virtual void ReadFrom(T predicates) {
             var type = predicates.GetType();
             foreach (var prop in type.GetProperties().Where(p => typeof(Expression).IsAssignableFrom(p.PropertyType))) {
@@ -35,5 +39,16 @@ namespace Limaki.Common.UnitsOfWork {
 
             }
         }
+
+        public virtual void WriteTo (T predicates) {
+            var type = predicates.GetType ();
+            foreach (var prop in type.GetProperties ().Where (p => typeof (Expression).IsAssignableFrom (p.PropertyType))) {
+                var thisProp = this.GetType ().GetProperty (prop.Name, typeof (EditableExpression));
+                if (thisProp.GetValue(this) is EditableExpression exp)
+                    prop.SetValue (predicates, exp.ToExpression(), null);
+
+            }
+        }
+
     }
 }

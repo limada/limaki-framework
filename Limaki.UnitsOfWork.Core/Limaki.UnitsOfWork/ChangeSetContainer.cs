@@ -19,10 +19,11 @@ using System.Runtime.Serialization;
 using System.IO;
 using System.Reflection;
 
-namespace Limaki.Common.UnitsOfWork {
+namespace Limaki.UnitsOfWork {
 
     [DataContract]
-    public class ChangeSetContainer {
+    public class ChangeSetContainer : IDisposable {
+        
         public IEnumerable<Type> KnownTypes() {
             var result = new List<Type>();
             var genType = typeof(ChangeSet<>).GetGenericTypeDefinition();
@@ -55,9 +56,7 @@ namespace Limaki.Common.UnitsOfWork {
 
         public string ChangeSetInfo<T>(object value) {
             var changeSet = (ChangeSet<T>)value;
-            return string.Format("{0} created \t {1} updated \t {2} removed ",
-                                 changeSet.Created.Count, changeSet.Updated.Count,
-                                 changeSet.Removed.Count);
+            return $"{changeSet.Created.Count} created \t {changeSet.Updated.Count} updated \t {changeSet.Removed.Count} removed";
         }
 
         public virtual IEnumerable<PropertyInfo> ChangeSetProperties() {
@@ -73,7 +72,6 @@ namespace Limaki.Common.UnitsOfWork {
                 }
             }
         }
-
 
         public virtual string Info() {
             var writer = new StringWriter();
@@ -91,14 +89,41 @@ namespace Limaki.Common.UnitsOfWork {
             return writer.ToString();
         }
 
+        public bool HasData {
+            get {
+                foreach (var changeSetProperty in ChangeSetProperties ()) {
+                    if (changeSetProperty.GetValue (this, null) is ChangeSet changeSet && changeSet.HasData) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        }
+
         public virtual void Clear() {
             foreach (var changeSetProperty in ChangeSetProperties()) {
-                var changeSet = changeSetProperty.GetValue(this, null);
-                if (changeSet != null) {
-                    var method = changeSetProperty.PropertyType.GetMethod("Clear");
-                    method.Invoke(changeSet,null);
+                if (changeSetProperty.GetValue (this, null) is UnitsOfWork.ChangeSet changeSet) {
+                    changeSet.Clear ();
                 }
             }
         }
+
+        private bool disposedValue = false; // To detect redundant calls
+
+        protected virtual void Dispose (bool disposing) {
+            if (!disposedValue) {
+                if (disposing) {
+                    Clear ();
+                }
+
+                disposedValue = true;
+            }
+        }
+
+        public void Dispose () {
+            Dispose (true);
+
+        }
+
     }
 }

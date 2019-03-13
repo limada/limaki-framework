@@ -14,10 +14,23 @@
 
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using System.Linq;
 
-namespace Limaki.Common.UnitsOfWork {
+namespace Limaki.UnitsOfWork {
+
     [DataContract]
-    public class ChangeSet<T> {
+    public abstract class ChangeSet {
+        public abstract void Clear ();
+        public abstract bool HasData { get; }
+
+	}
+
+    [DataContract]
+    public class ChangeSet<T>:ChangeSet {
+
+        static ChangeSet() {
+            typeof(ChangeSet<T>).GetCustomAttributes(false).OfType<DataContractAttribute>().First().Name = nameof(ChangeSet)+typeof(T).Name;
+        }
         protected ICollection<T> _created = null;
         [DataMember]
         public virtual ICollection<T> Created {
@@ -54,7 +67,7 @@ namespace Limaki.Common.UnitsOfWork {
             set { _removed = value; }
         }
 
-        public virtual bool HasData {
+        public override bool HasData {
             get {
                 return (_created != null && _created.Count != 0) ||
                        (_removed != null && _removed.Count != 0) ||
@@ -62,7 +75,8 @@ namespace Limaki.Common.UnitsOfWork {
             }
         }
 
-        public virtual void Clear() {
+        public override void Clear() {
+            
             if (_created != null && _created.Count != 0) {
                 if (!_created.IsReadOnly)
                     _created.Clear();

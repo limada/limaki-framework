@@ -13,8 +13,9 @@
  */
 
 using System.Runtime.Serialization;
+using Limaki.Common;
 
-namespace Limaki.Common.UnitsOfWork {
+namespace Limaki.UnitsOfWork {
 
     [DataContract]
     public class Paging {

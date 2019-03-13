@@ -263,13 +263,11 @@ namespace Limaki.Common.Collections {
         }
 
         protected virtual void OnAddingNew(AddingNewEventArgs e) {
-            if (AddingNew != null)
-                AddingNew(this, e);
+            AddingNew?.Invoke(this, e);
         }
 
         protected virtual void OnListChanged(ListChangedEventArgs e) {
-            if (ListChanged != null)
-                ListChanged(this, e);
+            ListChanged?.Invoke(this, e);
         }
 
         protected override void RemoveItem(int index) {

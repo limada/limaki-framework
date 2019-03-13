@@ -126,14 +126,15 @@ namespace Mono.Linq.Expressions {
 			case ExpressionType.Switch:
 				return true;
 			default:
-				var custom = expression as CustomExpression;
+ #if CustomExpressions               
+                var custom = expression as CustomExpression;
 				if (custom != null)
 					return IsStatement (custom);
-
-				return false;
+#endif
+                return false;
 			}
 		}
-
+#if CustomExpressions
 		static bool IsStatement (CustomExpression expression)
 		{
 			switch (expression.CustomNodeType) {
@@ -147,6 +148,7 @@ namespace Mono.Linq.Expressions {
 				return false;
 			}
 		}
+#endif
 
 		static bool IsActualStatement (Expression expression)
 		{
@@ -1268,7 +1270,7 @@ namespace Mono.Linq.Expressions {
 
 			return node;
 		}
-
+#if CustomExpressions
 		protected internal override Expression VisitForExpression (ForExpression node)
 		{
 			WriteKeyword ("for");
@@ -1360,5 +1362,6 @@ namespace Mono.Linq.Expressions {
 
 			return node;
 		}
-	}
+#endif
+    }
 }

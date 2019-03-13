@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Limaki 
  * 
  * This code is free software; you can redistribute it and/or modify it
@@ -8,7 +8,7 @@
  * Author: Lytico
  * Copyright (C) 2011 Lytico
  *
- * http://www.limada.org
+* http://www.limada.org
  * 
  */
 

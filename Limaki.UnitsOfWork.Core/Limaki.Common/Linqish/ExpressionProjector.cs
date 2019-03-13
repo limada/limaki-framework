@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Limaki 
  * 
  * This code is free software; you can redistribute it and/or modify it
@@ -8,7 +8,7 @@
  * Author: Lytico
  * Copyright (C) 2012 Lytico
  *
- * http://www.limada.org
+* http://www.limada.org
  * 
  */
 
@@ -17,6 +17,7 @@ using System.Linq;
 using System.Linq.Expressions;
 
 namespace Limaki.Common.Linqish {
+
     /// <summary>
     /// projects an  Expression<Func<S, R>>
     /// into an Expression<Func<T, R>>
@@ -78,9 +79,7 @@ namespace Limaki.Common.Linqish {
         protected override Expression VisitMember(MemberExpression node) {
             if (node.Type == sourceMember.Type && targetMember == null)
                 targetMember = node;
-
-           
-
+            
             bool isMember = node.Member.ReflectedType == sourceType || sourceType.GetInterfaces().Contains(node.Member.DeclaringType);
             if (isMember && new MemberOfParam().IsMemberOf(sourceMember, node.Expression))
                 return Expression.MakeMemberAccess(

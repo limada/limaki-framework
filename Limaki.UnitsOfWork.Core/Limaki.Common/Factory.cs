@@ -16,7 +16,6 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Reflection;
-using Limaki.Common.Collections;
 using System.Text;
 using Limaki.Common.Linqish;
 using System.Linq.Expressions;
@@ -66,14 +65,23 @@ namespace Limaki.Common {
         protected IDictionary<Type, Type> _knownClazzes=null;
         protected IDictionary<Type,Type> knownClazzes {
             get {
-                return _knownClazzes ?? (_knownClazzes = new Dictionary<Type, Type>());
+                if (_knownClazzes == null) {
+                    _knownClazzes = new Dictionary<Type, Type> (); 
+                    if (_clazzes == null)
+                        InstrumentClazzes ();
+                }
+                return _knownClazzes;
             }
         }
         public IEnumerable<Type> KnownClasses {
-            get { return knownClazzes.Values; }
+            get {
+                if (_clazzes == null)
+                    InstrumentClazzes();
+                return knownClazzes.Values;
+            }
         }
 
-        private IDictionary<Type, Delegate> _clazzes = null;
+        protected IDictionary<Type, Delegate> _clazzes = null;
         protected IDictionary<Type, Delegate> Clazzes {
             get {
                 if (_clazzes == null) {
@@ -84,18 +92,22 @@ namespace Limaki.Common {
             }
         }
 
+        public virtual void Clear () {
+            _clazzes = null;
+            _knownClazzes = null;
+        }
+
         public override bool Contains<T>() {
             return Clazzes.ContainsKey(typeof(T));
         }
         public virtual bool Contains(Type type) {
             return Clazzes.ContainsKey(type);
         }
-
-        public virtual Delegate Func<T>() {
+        public virtual Func<T> Func<T>() {
             var type = typeof(T);
             Delegate result = null;
             if (Clazzes.TryGetValue(type, out result)) {
-                return result;
+                return result as Func<T>;
             }
 
             return null;
@@ -164,6 +176,7 @@ namespace Limaki.Common {
                     Expression<Action> genexp = () => this.Create<object>();
                     GenericCreateMethod = ((MethodCallExpression)((LambdaExpression)genexp).Body).Method.GetGenericMethodDefinition();
                 }
+                // TODO: cache delegate here
                 return GenericCreateMethod.MakeGenericMethod(type).Invoke(this, null);
             }
             return null;
@@ -172,9 +185,10 @@ namespace Limaki.Common {
         protected static MethodInfo GenericAddMethod = null;
         public virtual void Add(Type t1, Type t2) {
             if (GenericAddMethod == null) {
-                Expression<Action> genexp = () => this.Add<object, object>();
+                Expression<Action> genexp =() => this.Add<object, object>();
                 GenericAddMethod = ((MethodCallExpression)((LambdaExpression)genexp).Body).Method.GetGenericMethodDefinition();
             }
+            // TODO: cache delegate here
             GenericAddMethod.MakeGenericMethod(t1, t2).Invoke(this, null);
             knownClazzes[t1] = t2;
         }
@@ -205,11 +219,11 @@ namespace Limaki.Common {
         public virtual void Add<T>(Func<object[], T> creator) {
             Clazzes[typeof(T)] = creator;
         }
-
-
+        
         public virtual void Add<T>(Func<T> creator) {
             Clazzes[typeof(T)] = creator;
         }
+
         public virtual void Add<T1,T2>(Func<object[], T1> creator)where T2:T1 {
             Clazzes[typeof(T1)] = creator;
             AddKnown<T1, T2>();   

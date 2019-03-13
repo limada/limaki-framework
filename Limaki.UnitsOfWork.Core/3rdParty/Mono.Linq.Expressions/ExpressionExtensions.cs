@@ -41,15 +41,12 @@ namespace Mono.Linq.Expressions {
 			return self.NodeType == type;
 		}
 
-		public static bool Is (this CustomExpression self, CustomExpressionType type)
-		{
-			if (self == null)
-				throw new ArgumentNullException ("self");
+        //public static bool Is (this CustomExpression self, CustomExpressionType type)
+        //{
+        //    if (self == null)
+        //        throw new ArgumentNullException ("self");
 
-			return self.CustomNodeType == type;
-		}
-
+        //    return self.CustomNodeType == type;
+        //}
 	}
-
-   
 }

@@ -6,7 +6,7 @@
  * published by the Free Software Foundation.
  * 
  * Author: Lytico
- * Copyright (C) 2008-2012 Lytico
+ * Copyright (C) 2017 Lytico
  *
  * http://www.limada.org
  * 
@@ -14,7 +14,8 @@
 
 using System.ServiceModel;
 
-namespace Limaki.Common.Services {
+namespace Limaki.UnitsOfWork {
+
     [ServiceContract]
     public interface IServiceBase {
         /// <summary>
@@ -22,21 +23,25 @@ namespace Limaki.Common.Services {
         /// if service can be pinged
         /// </summary>
         /// <returns></returns>
-        [OperationContract, FaultContractAttribute(typeof(string))]
-        bool Ping();
+        [OperationContract, FaultContract (typeof (string))]
+        bool Ping ();
 
         /// <summary>
         /// executes tests on the service
         /// eg. database connection
         /// </summary>
         /// <returns>null if everything ok, else error-string</returns>
-        [OperationContract, FaultContractAttribute(typeof(string))]
-        string Test();
+        [OperationContract, FaultContract (typeof (string))]
+        string Test ();
 
-        [OperationContract, FaultContractAttribute(typeof(string))]
-        byte[] Resource(string name);
+        [OperationContract, FaultContract (typeof (string))]
+        byte [] Resource (string name);
 
-        [OperationContract, FaultContractAttribute(typeof(string))]
-        string ServerVersion();
+        [OperationContract, FaultContract (typeof (string))]
+        string ServerVersion ();
     }
+
+    
+
+    
 }

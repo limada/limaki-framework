@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Limaki 
  * 
  * This code is free software; you can redistribute it and/or modify it
@@ -15,22 +15,30 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
-using System;
 
 namespace Limaki.Common.Linqish {
+
     /// <summary>
     /// replaces local variables with constants
     /// </summary>
     public class ExpressionConstantBuilder : ExpressionVisitor {
 
         ICollection<ParameterExpression> sourceParam;
+        ParameterExpression param;
+        MemberExpression targetMember = null;
 
         public Expression<T> Replace<T>(Expression<T> source) {
             if (source == null)
                 return null;
-            this.sourceParam = source.Parameters;
             var result = base.Visit(source);
             return result as Expression<T>;
+        }
+
+        public override Expression Visit (Expression node) {
+            var lam = node as LambdaExpression;
+            if (lam != null)
+                this.sourceParam = lam.Parameters;
+            return base.Visit (node);
         }
 
         protected override Expression VisitMember(MemberExpression node) {
@@ -43,28 +51,24 @@ namespace Limaki.Common.Linqish {
         }
 
         protected override Expression VisitMethodCall(MethodCallExpression node) {
-            
-            Func<MethodCallExpression, bool> isConstant = n =>
-                IsConstant(n.Object) || (n.Object == null && n.Method.Attributes.HasFlag(MethodAttributes.Static));
-
-            if (node.Arguments.Count == 0 && isConstant(node))
+            if ((node.Arguments.Count == 0 && IsConstant(node.Object)) || 
+                (node.Object == null && ! node.Method.Attributes.HasFlag(MethodAttributes.Static)))
                 return Expression.Constant(ConstantValue(node), node.Type);
             var args = new List<Expression>();
-            var argsHaveConsts = false;
-            var allArgsAreConsts = true;
+            var hasConsts = false;
             foreach (var arg in node.Arguments) {
                 if (IsConstant(arg)) {
                     var val = ConstantValue(arg);
                     args.Add(Expression.Constant(val, arg.Type));
-                    argsHaveConsts = true;
+                    hasConsts = true;
                 } else {
                     args.Add(arg);
-                    allArgsAreConsts = false;
+                   
                 }
             }
-            if (args.Count > 0 && argsHaveConsts) {
-                var result = Expression.Call(node.Object, node.Method, args);
-                if (isConstant(result) && allArgsAreConsts)
+            if (args.Count > 0 && hasConsts) {
+                var result = Expression.Call(node.Object,node.Method, args);
+                if (IsConstant(result.Object) || (result.Object==null && ! result.Method.Attributes.HasFlag(MethodAttributes.Static)))
                     return Expression.Constant(ConstantValue(result), result.Type);
                 return result;
             }
@@ -78,10 +82,12 @@ namespace Limaki.Common.Linqish {
                 Visit(ex);
                 return constFound != 0;
             }
+
             protected override Expression VisitConstant(ConstantExpression node) {
                 constFound ++;
                 return base.VisitConstant(node);
             }
+
             protected override Expression VisitMethodCall(MethodCallExpression node) {
                 Visit(node.Arguments);
                 return base.VisitMethodCall(node);

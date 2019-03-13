@@ -15,8 +15,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Limaki.Common;
 
-namespace Limaki.Common.UnitsOfWork {
+namespace Limaki.UnitsOfWork {
 
     public class StateMap:IDisposable {
         // remark: with Net 4, refactor to:
@@ -100,22 +101,17 @@ namespace Limaki.Common.UnitsOfWork {
             }
         }
 
-        public int ChangeCount() {
+        public int ChangeCount () {
             int result = 0;
             Action<object> count = list => {
-                var prop = list.GetType().GetProperties().Where(m => m.Name == "Count").FirstOrDefault();
+                var prop = list.GetType ().GetProperties ().Where (m => m.Name == "Count").FirstOrDefault ();
                 if (prop != null) {
-                    result += (int)prop.GetValue(list, null);
+                    result += (int)prop.GetValue (list, null);
                 }
             };
-            foreach (var list in created) count(list.Value);
-            foreach (var list in updated) count(list.Value);
-            foreach (var list in removed) {
-                var prop = list.Value.GetType().GetProperties().Where(m => m.Name == "Count").FirstOrDefault();
-                if (prop != null) {
-                    result += (int)prop.GetValue(list.Value, null);
-                }
-            }
+            foreach (var list in created) count (list.Value);
+            foreach (var list in updated) count (list.Value);
+            foreach (var list in removed) count (list.Value);
             return result;
         }
 

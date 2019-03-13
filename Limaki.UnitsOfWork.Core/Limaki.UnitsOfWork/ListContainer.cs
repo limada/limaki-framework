@@ -13,14 +13,17 @@
  */
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Reflection;
 
-namespace Limaki.Common.UnitsOfWork {
+namespace Limaki.UnitsOfWork {
+
     [DataContract]
-    public class ListContainer: IDisposable {
+    public class ListContainer: IListContainer {
+        
         public IEnumerable<Type> KnownTypes() {
             var result = new List<Type>();
             var genType = typeof(IEnumerable<>).GetGenericTypeDefinition();
@@ -40,16 +43,16 @@ namespace Limaki.Common.UnitsOfWork {
             PropertyInfo list = null;
             //if (!_listProperties.TryGetValue(type, out list)) {
             list = this.GetType().GetProperties()
-                .Where(p => p.PropertyType == typeof(IEnumerable<T>))
-                .FirstOrDefault();
+                .FirstOrDefault(p => p.PropertyType == typeof(IEnumerable<T>));
             //_listProperties.Add(type, list);
             //}
             return list;
         }
-
-      
+          
 
         public virtual void Set<T>(IEnumerable<T> value) {
+            if (value == null)
+                return;
              var list = ListProperty<T>();
              if (list != null) {
                  list.SetValue(this, value, null);
@@ -65,8 +68,7 @@ namespace Limaki.Common.UnitsOfWork {
         public virtual IEnumerable<T> List<T>() {
             var list = ListProperty<T>();
             if (list != null) {
-                var result = list.GetValue(this, null) as IEnumerable<T>;
-                if (result == null) {
+                if (!(list.GetValue(this, null) is IEnumerable<T> result)) {
                     result = new List<T>();
                     list.SetValue(this, result, null);
                 }
@@ -82,8 +84,7 @@ namespace Limaki.Common.UnitsOfWork {
                 .Where(p =>
                      p.PropertyType.IsGenericType &&
                      p.PropertyType.GetGenericTypeDefinition() == typeof(IEnumerable<>))) {
-                var list = propertyInfo.GetValue(this, null) as System.Collections.IList;
-                if (list != null)
+                if (propertyInfo.GetValue(this, null) is IList list)
                     list.Clear();
                 propertyInfo.SetValue(this, null, null);
             }

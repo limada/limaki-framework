@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Limaki 
  * 
  * This code is free software; you can redistribute it and/or modify it
@@ -8,7 +8,7 @@
  * Author: Lytico
  * Copyright (C) 2011 Lytico
  *
- * http://www.limada.org
+* http://www.limada.org
  * 
  */
 
@@ -19,25 +19,46 @@ using System.Reflection;
 
 namespace Limaki.Common.Linqish {
 
-    public class ExpressionUtils {
+    public static class ExpressionUtils {
 
-        public static MemberInfo MemberInfo<T, TMember>(Expression<Func<T, TMember>> exp) {
+        public static MemberInfo MemberInfo<T, TMember>(this Expression<Func<T, TMember>> exp) {
             var member = exp.Body as MemberExpression;
             if (member != null)
                 return member.Member;
             throw new ArgumentException(string.Format("{0} is not a MemberExpression", exp.ToString()));
         }
 
-        public static string MemberName<T, TMember>(Expression<Func<T, TMember>> exp) {
+        public static string Nameof<T, TMember>(Expression<Func<T, TMember>> exp) {
             return MemberInfo(exp).Name;
         }
 
-        public static Expression<T> ToLamda<T>(Expression<T> expr) {
+        public static Expression<Func<T, TMember>> ReplaceBody<T, TMember> (Expression<Func<T, TMember>> exp, Expression replace, bool right) {
+            var body = exp.Body as BinaryExpression;
+            if (body == null)
+                throw new NotSupportedException ("Only BinaryExpressions are supported ");
+            if (right)
+                body = Expression.MakeBinary (body.NodeType, body.Left, replace);
+            else
+                body = Expression.MakeBinary (body.NodeType, replace, body.Right);
+            return Expression.Lambda<Func<T, TMember>> (body, exp.Parameters);
+        }
+
+        /// <summary>
+        /// Expression<T> expr = (...) => ...;
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="expr"></param>
+        /// <returns></returns>
+        public static Expression<T> Lambda<T>(Expression<T> expr) {
             return expr;
         }
 
-      
-    }
+        public static IQueryable<T> WhereIf<T> (this IQueryable<T> query, Expression<Func<T, bool>> whereClause) {
+            if (whereClause != null) {
+                return query.Where (whereClause);
+            }
+            return query;
 
-   
+        }
+    }
 }
