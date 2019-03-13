@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "limaki][framework", "limaki][framework.csproj", "{1573FE6B-0434-4692-8226-D515A616EE9B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Limaki.UnitsOfWork.Core", "Limaki.UnitsOfWork.Core\Limaki.UnitsOfWork.Core.csproj", "{998D2110-F685-46C0-A82F-050881B2B4C6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -10,12 +10,12 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{1573FE6B-0434-4692-8226-D515A616EE9B}.Debug 4.0|Any CPU.ActiveCfg = Debug 4.0|Any CPU
-		{1573FE6B-0434-4692-8226-D515A616EE9B}.Debug 4.0|Any CPU.Build.0 = Debug 4.0|Any CPU
-		{1573FE6B-0434-4692-8226-D515A616EE9B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1573FE6B-0434-4692-8226-D515A616EE9B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1573FE6B-0434-4692-8226-D515A616EE9B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1573FE6B-0434-4692-8226-D515A616EE9B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{998D2110-F685-46C0-A82F-050881B2B4C6}.Debug 4.0|Any CPU.ActiveCfg = Debug|Any CPU
+		{998D2110-F685-46C0-A82F-050881B2B4C6}.Debug 4.0|Any CPU.Build.0 = Debug|Any CPU
+		{998D2110-F685-46C0-A82F-050881B2B4C6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{998D2110-F685-46C0-A82F-050881B2B4C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{998D2110-F685-46C0-A82F-050881B2B4C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{998D2110-F685-46C0-A82F-050881B2B4C6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
