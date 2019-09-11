@@ -43,7 +43,7 @@ namespace Limaki.UnitsOfWork {
     }
 }
 #else
-namespace Limaki.UnitsOfWork {
+namespace Limaki.UnitsOfWork.Service {
 
     public interface IServiceBase {
         /// <summary>

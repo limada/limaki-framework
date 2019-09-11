@@ -17,7 +17,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 
-namespace Limaki.UnitsOfWork {
+namespace Limaki.UnitsOfWork.Usecases {
     
     public class UsecaseIds {
         

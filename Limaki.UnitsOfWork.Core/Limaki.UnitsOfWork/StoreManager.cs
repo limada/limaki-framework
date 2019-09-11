@@ -13,11 +13,9 @@
  */
 
 using System;
-using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using Limaki.Common;
-using Limaki.Common.Collections;
 
 namespace Limaki.UnitsOfWork {
 
@@ -29,7 +27,7 @@ namespace Limaki.UnitsOfWork {
 
         public abstract void CollectEntities (Store store, object item);
 
-        public abstract void ExpandItems (ListContainer container, IdentityMap map);
+        public abstract void ExpandItems (IListContainer container, IdentityMap map);
 
         protected Store _store = null;
         public virtual Store Store {
@@ -76,25 +74,25 @@ namespace Limaki.UnitsOfWork {
             var copier = new Copier<T> (CopierOptions.DataMember);
             var factory = store.ItemFactory;
 
-            Func<T, T> MakeDTO = e => {
+            T MakeDTO (T e) {
                 var dto = copier.Copy (e, factory.Create<T> ());
                 //var flatten = dto as IFlattable;
                 //if (flatten != null)
                 //  flatten.Flatten ();
                 return dto;
-            };
+            }
 
             var createList = store.Created<T> ();
 
-            foreach (var child in createList) {
-                changeset.Updated.Add (MakeDTO (child));
+            foreach (var item in createList) {
+                changeset.Updated.Add (MakeDTO (item));
             }
-            foreach (var child in store.Updated<T> ()) {
-                if (!createList.Contains (child))
-                    changeset.Updated.Add (MakeDTO (child));
+            foreach (var item in store.Updated<T> ()) {
+                if (!createList.Contains (item))
+                    changeset.Updated.Add (MakeDTO (item));
             }
-            foreach (var child in store.Removed<T> ()) {
-                changeset.Removed.Add (MakeDTO (child));
+            foreach (var item in store.Removed<T> ()) {
+                changeset.Removed.Add (MakeDTO (item));
             }
 
             if (changeset.HasData)

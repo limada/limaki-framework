@@ -17,12 +17,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Runtime.Serialization;
-using Limaki.Common.Collections;
 using Limaki.Common.Linqish;
-using Limaki.UnitsOfWork.Model;
+using Limaki.UnitsOfWork.IdEntity.Model;
+using Limaki.UnitsOfWork.IdEntity.Usecases;
 
-namespace Limaki.UnitsOfWork {
+namespace Limaki.UnitsOfWork.Usecases {
 
     public class DomainOrganizer : IDomainOrganizer {
 
@@ -87,7 +86,7 @@ namespace Limaki.UnitsOfWork {
         public virtual (bool can, FormattableString msg) CanRemove<T> (T entity) => (GetInteractor<T> () is EntityInteractor<T> interactor) ? interactor.CanRemove (entity) : (true, null);
         public virtual (bool can, FormattableString msg) CanRemove<T> (Store store, T entity) => (GetInteractor<T> () is EntityInteractor<T> interactor) ? interactor.CanRemove (store,entity) : (true, null);
 
-        public virtual bool GotRelations (ListContainer container) {
+        public virtual bool GotRelations (IListContainer container) {
             if (container == null)
                 return false;
             if (Interactors.Count == 0)

@@ -1,4 +1,5 @@
 ﻿namespace Limaki.Common.IOC {
+
     public interface IContextResourceLoader {
         /// <summary>
         /// instruments the context

@@ -13,7 +13,7 @@
  */
 
 using System.Linq;
-using Limaki.UnitsOfWork.Model.Dto;
+using Limaki.UnitsOfWork.IdEntity.Model.Dto;
 
 namespace Limaki.UnitsOfWork.Data {
 

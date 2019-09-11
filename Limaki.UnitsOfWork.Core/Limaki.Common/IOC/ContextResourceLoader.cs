@@ -14,6 +14,7 @@
 
 
 namespace Limaki.Common.IOC {
+
     /// <summary>
     /// instruments an IApplicationContext
     /// used to load the resources (common objects and factories) in an application

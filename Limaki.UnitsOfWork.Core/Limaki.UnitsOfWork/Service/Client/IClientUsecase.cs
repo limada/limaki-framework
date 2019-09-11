@@ -14,7 +14,7 @@
 
 using System;
 
-namespace Limaki.UnitsOfWork {
+namespace Limaki.UnitsOfWork.Service.Client {
     
     public interface IClientUsecase {
         Store Store { get; }

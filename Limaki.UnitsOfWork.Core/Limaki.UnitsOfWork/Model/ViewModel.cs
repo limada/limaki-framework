@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Text;
 using Limaki.Common;
+using Limaki.UnitsOfWork.IdEntity.Model;
 
 namespace Limaki.UnitsOfWork {
 
@@ -10,18 +11,7 @@ namespace Limaki.UnitsOfWork {
         string PagingJson { get; set; }
     }
 
-    public interface IViewModel : ICheckable {
 
-        Store Store { get; set; }
-        bool ReadOnly { get; set; }
-        string ToString (string format);
-
-    }
-
-    public interface IViewModel<T> : IViewModel {
-
-        T Entity { get; }
-    }
 
     public interface ICheckable {
         string Check ();

@@ -25,7 +25,7 @@ namespace Limaki.UnitsOfWork {
         void Clear ();
         void CollectEntities (Store store, object item);
         bool CollectEntity<T> (Store store, T item);
-        void ExpandItems (ListContainer container, IdentityMap map);
+        void ExpandItems (IListContainer container, IdentityMap map);
         void InstrumentFactory (IFactory afactory);
         void SaveTo (Store store, ChangeSetContainer container);
         void SaveTo (ChangeSetContainer container);

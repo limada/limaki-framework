@@ -95,8 +95,8 @@ namespace Limaki.Common.Collections {
 
         static bool _isClass = typeof (T).IsClass;
         static bool IsDefault (T flag) => _isClass ? flag == null : flag.Equals (default (T));
-        public static bool operator == (Flags<T> flags1, T flag2) => ReferenceEquals (flags1, null) ? 
-                                                                     IsDefault(flag2) :
+        public static bool operator == (Flags<T> flags1, T flag2) => ReferenceEquals (flags1, null) ?
+                                                                     IsDefault (flag2) :
                                                                      flags1._flags.Count == 1 && flags1._flags.Contains (flag2);
 
         public static bool operator != (Flags<T> flags1, T flag2) => !(flags1 == flag2);
@@ -147,13 +147,18 @@ namespace Limaki.Common.Collections {
 
         // WARNING! do not make ist static; All() fails then, as first Flags<T>-class takes _flagFields over
         // needs a more sophisticated static cache; eg: Dictionary<Type,PropertyInfo []> _cache and call with _cache.TryGet(this.gettype)
-        protected PropertyInfo [] _flagFields = null;
+        protected PropertyInfo[] _flagFields = null;
         protected PropertyInfo[] FlagFields => _flagFields ?? (_flagFields = GetType ().GetProperties (BindingFlags.Static | BindingFlags.Public)
                                                                         .Where (p => p.PropertyType == typeof (T))
                                                                         .ToArray ());
 
-        public string NameOf (T id) => FlagFields.FirstOrDefault (p => p.PropertyType == typeof (T) && p.GetValue (this).Equals (id))
-                ?.Name ?? id.ToString ();
+        public virtual string NameOf (T id) => TryNameOf (id, out string name) ? name : id.ToString ();
+
+        public virtual bool TryNameOf (T id, out string name) {
+            var property = FlagFields.FirstOrDefault (p => p.PropertyType == typeof (T) && p.GetValue (this).Equals (id));
+            name = property?.Name;
+            return property != default;
+        }
 
         private string DisplayName (Guid id) {
             throw new NotImplementedException ();
@@ -166,16 +171,16 @@ namespace Limaki.Common.Collections {
 
         }
 
-        public T FlagOf (Type type) {
+        public virtual T FlagOf (Type type) {
             if (type == null)
                 return default;
-            var r = FlagFields.FirstOrDefault (p => p.PropertyType == typeof (T) 
-                && (p.GetCustomAttributes<TypeGuidAttribute>().Any(t=>t.Type==type)))
+            var r = FlagFields.FirstOrDefault (p => p.PropertyType == typeof (T)
+                && (p.GetCustomAttributes<TypeGuidAttribute> ().Any (t => t.Type == type)))
                 ?.GetValue (this) ?? default (T);
             return (T)r;
         }
 
-        public T FlagOf (string name) {
+        public virtual T FlagOf (string name) {
             if (name == null)
                 return default;
             var r = FlagFields.FirstOrDefault (p => p.PropertyType == typeof (T) && (p.Name == name))
@@ -183,29 +188,33 @@ namespace Limaki.Common.Collections {
             return (T)r;
         }
 
-        public IEnumerator<T> GetEnumerator () => ((IEnumerable<T>)_flags).GetEnumerator ();
+        public virtual IEnumerator<T> GetEnumerator () => ((IEnumerable<T>)_flags).GetEnumerator ();
 
-        IEnumerator IEnumerable.GetEnumerator () => ((IEnumerable<T>)_flags).GetEnumerator ();
+        IEnumerator IEnumerable.GetEnumerator () => this.GetEnumerator ();
 
-        public IEnumerable<T> All () => FlagFields.Select (p => p.GetValue (this)).Cast<T> ();
+        public virtual IEnumerable<T> All () => FlagFields.Select (p => p.GetValue (this)).Cast<T> ();
+
 
         public static F WithAll<F> () where F : Flags<T>, new() {
             var f = new F (); f.Add (f.All ()); return f;
         }
 
-        public static F With<F> (F other) where F : Flags<T>, new() {
-            var f = new F (); f.Add (other); return f;
-        }
-
         public static F With<F> (params F[] others) where F : Flags<T>, new() {
-            var f = new F (); 
-            foreach(var other in others)
-                f.Add (other); 
+            var f = new F ();
+            foreach (var other in others)
+                f.Add (other);
             return f;
         }
+    }
 
-        public static F With<F> (F other, params T[] flags) where F : Flags<T>, new() {
-            var f = new F (); f.Add (other);f.Add (flags); return f;
+    public static class FlagsExtensions {
+
+        public static F With<F, T> (this F it, params T[] flags) where F : Flags<T>, new() {
+            var f = new F (); f.Add (it); f.Add (flags); return f;
+        }
+
+        public static F WithOut<F, T> (this F it, params T[] flags) where F : Flags<T>, new() {
+            var f = new F (); f.Add (it); f.Remove (flags); return f;
         }
 
     }

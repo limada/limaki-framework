@@ -30,13 +30,9 @@ namespace Limaki.UnitsOfWork {
 
         public virtual IFactory ItemFactory { get; set; }
 
-        public virtual T Create<T> () {
-            return ItemFactory.Create<T> ();
-        }
+        public virtual T Create<T> () => ItemFactory.Create<T> ();
 
-        public virtual T Create<T> (params object[] args) {
-            return ItemFactory.Create<T> (args);
-        }
+        public virtual T Create<T> (params object[] args) => ItemFactory.Create<T> (args);
 
         #endregion
 
@@ -59,25 +55,15 @@ namespace Limaki.UnitsOfWork {
             }
         }
 
-        public bool Add<T> (T item) {
-            return IdentityMap.Add<T> (item);
-        }
+        public bool Add<T> (T item) => IdentityMap.Add<T> (item);
 
-        public bool Refresh<T> (T item) {
-            return IdentityMap.Refresh<T> (item);
-        }
+        public bool Refresh<T> (T item) => IdentityMap.Refresh<T> (item);
 
-        public T Unique<T> (T item) {
-            return IdentityMap.Unique<T> (item);
-        }
+        public T Unique<T> (T item) => IdentityMap.Unique<T> (item);
 
-        public T Item<T, TKey> (TKey key) {
-            return IdentityMap.Item<T, TKey> (key);
-        }
+        public T Item<T, TKey> (TKey key) => IdentityMap.Item<T, TKey> (key);
 
-        public T Item<T> (Func<T, bool> predicate) {
-            return IdentityMap.Item<T> (predicate);
-        }
+        public T Item<T> (Func<T, bool> predicate) => IdentityMap.Item<T> (predicate);
 
         public IEnumerable<T> Items<T> () => IdentityMap.Stored<T> ();
 
@@ -102,16 +88,11 @@ namespace Limaki.UnitsOfWork {
             }
         }
 
-        public ICollection<T> Created<T> () {
-            return State.Created<T> ();
-        }
-        public ICollection<T> Updated<T> () {
-            return State.Updated<T> ();
-        }
+        public ICollection<T> Created<T> () => State.Created<T> ();
 
-        public ICollection<T> Removed<T> () {
-            return State.Removed<T> ();
-        }
+        public ICollection<T> Updated<T> () => State.Updated<T> ();
+
+        public ICollection<T> Removed<T> () => State.Removed<T> ();
 
         public T AddCreated<T> (T item) {
             if (item != null) {
@@ -121,7 +102,7 @@ namespace Limaki.UnitsOfWork {
             return item;
         }
 
-        public T Update<T> (T item) {
+        public virtual T Update<T> (T item) {
             if (item != null) {
                 State.Update (item);
                 //Collection<T>(created).Remove(item);
@@ -137,9 +118,7 @@ namespace Limaki.UnitsOfWork {
             return item;
         }
 
-        public int ChangeCount () {
-            return State.ChangeCount ();
-        }
+        public int ChangeCount () => State.ChangeCount ();
 
         public virtual void ClearChanges () {
             if (_state != null) {
@@ -170,45 +149,25 @@ namespace Limaki.UnitsOfWork {
             }
         }
 
-        public void AddValidation<T, M> (Expression<Func<T, M>> member, Func<T, M, M, string, bool> validate) {
-            Validator.Add (member, validate);
-        }
+        public void AddValidation<T, M> (Expression<Func<T, M>> member, Func<T, M, M, string, bool> validate) => Validator.Add (member, validate);
 
-        public void AddValidation<T, M> (string member, Func<T, M, M, string, bool> validate) {
-            Validator.Add (validate, member);
-        }
+        public void AddValidation<T, M> (string member, Func<T, M, M, string, bool> validate) => Validator.Add (validate, member);
 
-        public bool IsValidChange<T, M> (Expression<Func<T, M>> member, T item, M oldValue, M newValue) {
-            return Validator.IsValidChange (member, item, oldValue, newValue);
-        }
+        public bool IsValidChange<T, M> (Expression<Func<T, M>> member, T item, M oldValue, M newValue) => Validator.IsValidChange (member, item, oldValue, newValue);
 
-        public bool IsValidChange<T, V> (string member, T item, V oldValue, V newValue) {
-            return Validator.IsValidChange (item, oldValue, newValue, member);
-        }
+        public bool IsValidChange<T, V> (string member, T item, V oldValue, V newValue) => Validator.IsValidChange (item, oldValue, newValue, member);
 
-        public void AddValidation<T, M> (Expression<Func<T, M>> member, Action<T, M, M, string> memberChanged) {
-            Validator.Add (member, memberChanged);
-        }
+        public void AddValidation<T, M> (Expression<Func<T, M>> member, Action<T, M, M, string> memberChanged) => Validator.Add (member, memberChanged);
 
-        public void AddValidation<T, M> (string member, Action<T, M, M, string> memberChanged) {
-            Validator.Add (memberChanged, member);
-        }
+        public void AddValidation<T, M> (string member, Action<T, M, M, string> memberChanged) => Validator.Add (memberChanged, member);
 
-        public void AddValidation<T> (Action<T,string> entityChanged) {
-            Validator.Add (entityChanged);
-        }
+        public void AddValidation<T> (Action<T, string> entityChanged) => Validator.Add (entityChanged);
 
-        public void MemberChanged<T, M> (Expression<Func<T, M>> member, T item, M oldValue, M newValue) {
-            Validator.MemberChanged (member, item, oldValue, newValue);
-        }
+        public void MemberChanged<T, M> (Expression<Func<T, M>> member, T item, M oldValue, M newValue) => Validator.MemberChanged (member, item, oldValue, newValue);
 
-        public void MemberChanged<T, V> (string member, T item, V oldValue, V newValue) {
-            Validator.MemberChanged (item, oldValue, newValue, member, false);
-        }
+        public void MemberChanged<T, V> (string member, T item, V oldValue, V newValue) => Validator.MemberChanged (item, oldValue, newValue, member, false);
 
-        public void EntityChanged<T> (T item, string member = null) {
-            Validator.EntityChanged (item, member);
-        }
+        public void EntityChanged<T> (T item, string member = null) => Validator.EntityChanged (item, member);
 
         #endregion
 

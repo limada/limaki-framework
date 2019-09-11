@@ -32,28 +32,16 @@ namespace Limaki.UnitsOfWork {
         protected IDictionary<Type, object> _updated = null;
         protected IDictionary<Type, object> _removed = null;
 
-        protected IDictionary<Type, object> created {
-            get { return _created ?? (_created = new Dictionary<Type, object>()); }
-        }
-        protected IDictionary<Type, object> updated {
-            get { return _updated ?? (_updated = new Dictionary<Type, object>()); }
-        }
-        protected IDictionary<Type, object> removed {
-            get { return _removed ?? (_removed = new Dictionary<Type, object>()); }
-        }
+        protected IDictionary<Type, object> created => _created ?? (_created = new Dictionary<Type, object> ());
+        protected IDictionary<Type, object> updated => _updated ?? (_updated = new Dictionary<Type, object> ());
+        protected IDictionary<Type, object> removed => _removed ?? (_removed = new Dictionary<Type, object> ());
 
-        protected ICollection<T> CreateCollection<T>(IEqualityComparer<T> comparer) {
-            if (comparer != null)
-                return new HashSet<T>(comparer);
-            else
-                return new HashSet<T>();
-        }
+        protected ICollection<T> CreateCollection<T> (IEqualityComparer<T> comparer) => comparer != null ? new HashSet<T> (comparer) : new HashSet<T> ();
 
         protected ICollection<T> Collection<T>(IDictionary<Type, object> list) {
             ICollection<T> result = null;
-            object o = null;
 
-            list.TryGetValue(typeof(T), out o);
+            list.TryGetValue (typeof (T), out object o);
             if (o == null) {
                 IEqualityComparer<T> comparer = null;
                 if (ItemFactory != null)
@@ -67,32 +55,25 @@ namespace Limaki.UnitsOfWork {
             return result;
         }
 
-        public ICollection<T> Created<T>() {
-            return Collection<T>(created);
-        }
-        public ICollection<T> Updated<T>() {
-            return Collection<T>(updated);
-        }
-
-        public ICollection<T> Removed<T>() {
-            return Collection<T>(removed);
-        }
+        public ICollection<T> Created<T> () => Collection<T> (created);
+        public ICollection<T> Updated<T> () => Collection<T> (updated);
+        public ICollection<T> Removed<T> () => Collection<T> (removed);
 
         public void AddCreated<T>(T item) {
-            if (item != null) {
+            if (item != default) {
                 Collection<T>(created).Add(item);
             }
         }
 
         public void Update<T>(T item) {
-            if (item != null) {
+            if (item != default) {
                 Collection<T>(updated).Add(item);
                 //Collection<T>(created).Remove(item);
             }
         }
 
         public void Remove<T>(T item) {
-            if (item != null) {
+            if (item != default) {
                 if (!Created<T>().Contains(item)) {
                     Collection<T>(removed).Add(item);
                 }
@@ -103,12 +84,12 @@ namespace Limaki.UnitsOfWork {
 
         public int ChangeCount () {
             int result = 0;
-            Action<object> count = list => {
-                var prop = list.GetType ().GetProperties ().Where (m => m.Name == "Count").FirstOrDefault ();
+            void count (object list) {
+                var prop = list.GetType ().GetProperties ().FirstOrDefault (m => m.Name == "Count");
                 if (prop != null) {
                     result += (int)prop.GetValue (list, null);
                 }
-            };
+            }
             foreach (var list in created) count (list.Value);
             foreach (var list in updated) count (list.Value);
             foreach (var list in removed) count (list.Value);

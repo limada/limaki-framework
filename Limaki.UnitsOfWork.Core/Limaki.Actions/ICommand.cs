@@ -15,17 +15,18 @@ using System;
 namespace Limaki.Actions {
 
     public interface ICommand : IDisposable {
-        void Execute();
+        void Execute ();
     }
 
     public interface ICommand<T> : ICommand {
         T Subject { get; set; }
     }
-    public interface ICommand<T,P>:ICommand<T> {
+
+    public interface ICommand<T, P> : ICommand<T> {
         P Parameter { get; set; }
     }
 
-    public interface ICommand<T, P,P2> : ICommand<T,P> {
+    public interface ICommand<T, P, P2> : ICommand<T, P> {
         P2 Parameter2 { get; set; }
     }
 }

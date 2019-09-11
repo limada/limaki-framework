@@ -17,7 +17,7 @@ using System.IO;
 using System.Reflection;
 using Limaki.Common;
 
-namespace Limaki.UnitsOfWork {
+namespace Limaki.UnitsOfWork.Service.Server {
 
     public class ServiceBase : IServiceBase {
 

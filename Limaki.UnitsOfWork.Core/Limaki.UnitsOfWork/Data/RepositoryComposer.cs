@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Limaki.UnitsOfWork.IdEntity.Data;
 using Mono.Linq.Expressions;
 
 namespace Limaki.UnitsOfWork.Data {

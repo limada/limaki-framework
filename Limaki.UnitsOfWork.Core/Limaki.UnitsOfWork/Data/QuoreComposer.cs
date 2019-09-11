@@ -21,6 +21,8 @@ using System.Reflection;
 using Limaki.Common.Linqish;
 using Limaki.Data;
 using Limaki.LinqData;
+using Limaki.UnitsOfWork.IdEntity.Data;
+using Limaki.UnitsOfWork.IdEntity.Model;
 using Mono.Linq.Expressions;
 
 namespace Limaki.UnitsOfWork.Data {

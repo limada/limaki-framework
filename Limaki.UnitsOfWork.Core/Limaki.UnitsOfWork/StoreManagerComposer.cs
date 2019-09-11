@@ -66,22 +66,22 @@ namespace Limaki.UnitsOfWork {
             return composeAction as Action<IStoreManager, Store, Object>;
         }
 
-        public virtual IEnumerable<T> AddToMap<T> (ListContainer container, IdentityMap map) {
+        public virtual IEnumerable<T> AddToMap<T> (IListContainer container, IdentityMap map) {
             var items = container.List<T> ();
             //Map.Clear<T>();
             map.RefreshRange (items);
             return items;
         }
 
-        public Action<ListContainer, IdentityMap> ExpandItemsDelegate () {
-            Log.Debug (nameof (CollectEntitiesDelegate));
+        public Action<IListContainer, IdentityMap> ExpandItemsDelegate () {
+            Log.Debug (nameof (ExpandItemsDelegate));
 
-            var delegateType = typeof (Action<,>).MakeGenericType (typeof (ListContainer), typeof (IdentityMap));
+            var delegateType = typeof (Action<,>).MakeGenericType (typeof (IListContainer), typeof (IdentityMap));
             var blockExpressions = new List<Expression> ();
 
             var thisType = this.GetType ();
             var it = Expression.Variable (thisType, "it");
-            var container = Expression.Variable (typeof (ListContainer), "container");
+            var container = Expression.Variable (typeof (IListContainer), "container");
             var map = Expression.Variable (typeof (IdentityMap), "map");
 
             var addToMapGeneric = thisType.GetMethod (nameof (AddToMap)).GetGenericMethodDefinition ();
@@ -104,7 +104,7 @@ namespace Limaki.UnitsOfWork {
             Log.Debug (composeExpression.ToCSharpCode ());
             var composeAction = composeExpression.Compile ();
 
-            return composeAction as Action<ListContainer, IdentityMap>;
+            return composeAction as Action<IListContainer, IdentityMap>;
         }
     }
 }

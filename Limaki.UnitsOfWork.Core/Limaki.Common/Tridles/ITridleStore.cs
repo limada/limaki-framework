@@ -18,8 +18,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 
 namespace Limaki.Common.Tridles {
-    
-    
+
     public interface ITridleStore<K> {
 
         ITridle<K, string> DynType (K dynId);

@@ -15,6 +15,7 @@
 namespace Limaki.UnitsOfWork.Model {
 
     public class UsecaseInfo {
+
         public string Title { get; set; }
         public string Version { get; set; }
         /// <summary>

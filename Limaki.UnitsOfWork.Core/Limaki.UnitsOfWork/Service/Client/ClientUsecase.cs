@@ -13,10 +13,9 @@
  */
 
 using System;
-using System.Linq.Expressions;
 using Limaki.Common;
 
-namespace Limaki.UnitsOfWork {
+namespace Limaki.UnitsOfWork.Service.Client {
     /// <summary>
     /// Service facade.
     /// used to consume a servcice on client side

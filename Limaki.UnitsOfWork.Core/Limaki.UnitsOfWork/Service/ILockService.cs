@@ -14,9 +14,9 @@
 
 using System;
 using System.Collections.Generic;
-using Limaki.UnitsOfWork.Model;
+using Limaki.UnitsOfWork.IdEntity.Model;
 
-namespace Limaki.UnitsOfWork {
+namespace Limaki.UnitsOfWork.Service {
     
     public interface ILockService {
         bool IsLocked (Guid key, Guid member);

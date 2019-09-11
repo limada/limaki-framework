@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <ReleaseVersion>19.7.0.1</ReleaseVersion>
+    <ReleaseVersion>19.8.0.1</ReleaseVersion>
   </PropertyGroup>
   <PropertyGroup>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
@@ -10,14 +10,14 @@
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
-    <RootNamespace>Limaki</RootNamespace>
+    <RootNamespace></RootNamespace>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <LangVersion>Latest</LangVersion>
+    <LangVersion>7.3</LangVersion>
     <DefineConstants>TRACE;DEBUG;NETSTANDARD;NETSTANDARD2_0</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <LangVersion>Latest</LangVersion>
+    <LangVersion>7.3</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="System.ComponentModel.Annotations" Version="4.5.0" />
@@ -27,19 +27,26 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="[Obsolete]\" />
-    <Folder Include="Limaki.UnitsOfWork\Model\Dto\" />
-    <Folder Include="Limaki.UnitsOfWork\Cms\" />
+    <Folder Include="Limaki.UnitsOfWork\Content\" />
     <Folder Include="Limaki.Data\" />
-    <Folder Include="Limaki.UnitsOfWork\Model\Hash\" />
+    <Folder Include="Limaki.UnitsOfWork\Ioc\" />
+    <Folder Include="Limaki.UnitsOfWork\Tridles\" />
+    <Folder Include="Limaki.UnitsOfWork\Tridles\Model\" />
+    <Folder Include="Limaki.UnitsOfWork\Tridles\Model\Dto\" />
+    <Folder Include="Limaki.UnitsOfWork\Tridles\Usecases\" />
+    <Folder Include="Limaki.UnitsOfWork\Hash\" />
+    <Folder Include="Limaki.UnitsOfWork\Hash\Model\" />
+    <Folder Include="Limaki.UnitsOfWork\Hash\Model\Dto\" />
+    <Folder Include="Limaki.UnitsOfWork\Hash\Usecases\" />
+    <Folder Include="Limaki.UnitsOfWork\Tridles\Data\" />
+    <Folder Include="Limaki.UnitsOfWork\Content\Usecases\" />
+    <Folder Include="Limaki.UnitsOfWork\Content\Model\" />
+    <Folder Include="Limaki.UnitsOfWork\Content\Model\Dto\" />
+    <Folder Include="Limaki.UnitsOfWork\Content\Usecases\Detectors\" />
+    <Folder Include="Limaki.UnitsOfWork\IdEntity\" />
+    <Folder Include="Limaki.UnitsOfWork\IdEntity\Model\" />
+    <Folder Include="Limaki.UnitsOfWork\IdEntity\Model\Dto\" />
+    <Folder Include="Limaki.UnitsOfWork\IdEntity\Usecases\" />
+    <Folder Include="Limaki.UnitsOfWork\IdEntity\Data\" />
   </ItemGroup>
-  <ProjectExtensions>
-    <MonoDevelop>
-      <Properties>
-        <Policies>
-          <TextStylePolicy FileWidth="120" TabWidth="4" IndentWidth="4" RemoveTrailingWhitespace="True" NoTabsAfterNonTabs="False" TabsToSpaces="True" EolMarker="Unix" scope="text/x-csharp" />
-          <CSharpFormattingPolicy IndentBlock="True" IndentBraces="False" IndentSwitchCaseSection="True" LabelPositioning="OneLess" SpaceWithinMethodDeclarationParenthesis="False" SpaceBetweenEmptyMethodDeclarationParentheses="False" SpaceWithinMethodCallParentheses="False" SpaceBetweenEmptyMethodCallParentheses="False" SpaceAfterControlFlowStatementKeyword="True" SpaceWithinExpressionParentheses="False" SpaceWithinCastParentheses="False" SpaceWithinOtherParentheses="False" SpaceAfterCast="False" SpacesIgnoreAroundVariableDeclaration="False" SpaceBetweenEmptySquareBrackets="False" SpaceWithinSquareBrackets="False" SpaceAfterColonInBaseTypeDeclaration="True" SpaceAfterComma="True" SpaceAfterDot="False" SpaceAfterSemicolonsInForStatement="True" SpaceBeforeColonInBaseTypeDeclaration="True" SpaceBeforeComma="False" SpaceBeforeDot="False" SpaceBeforeSemicolonsInForStatement="False" SpacingAroundBinaryOperator="Single" WrappingPreserveSingleLine="True" WrappingKeepStatementsOnSingleLine="True" PlaceSystemDirectiveFirst="True" IndentSwitchSection="False" NewLinesForBracesInTypes="False" NewLinesForBracesInMethods="False" NewLinesForBracesInProperties="False" NewLinesForBracesInAccessors="False" NewLinesForBracesInAnonymousMethods="False" NewLinesForBracesInControlBlocks="False" NewLinesForBracesInAnonymousTypes="False" NewLinesForBracesInObjectCollectionArrayInitializers="False" NewLinesForBracesInLambdaExpressionBody="False" NewLineForElse="False" NewLineForCatch="False" NewLineForFinally="False" NewLineForMembersInObjectInit="False" NewLineForMembersInAnonymousTypes="False" NewLineForClausesInQuery="False" SpacingAfterMethodDeclarationName="True" SpaceAfterMethodCallName="True" SpaceBeforeOpenSquareBracket="True" scope="text/x-csharp" />
-        </Policies>
-      </Properties>
-    </MonoDevelop>
-  </ProjectExtensions>
 </Project>

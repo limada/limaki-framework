@@ -13,26 +13,36 @@
  */
 
 using Limaki.Common.IOC;
-using Limaki.UnitsOfWork.Cms;
+using Limaki.UnitsOfWork.Usecases;
 
 namespace Limaki.UnitsOfWork {
 
     public class UnitsOfWorkContextResourceLoader : ContextResourceLoader {
 
+        public UnitsOfWorkContextResourceLoader (IContextResourceLoader resourceLoader) {
+            this.ResourceLoader = resourceLoader;
+        }
+
+        public UnitsOfWorkContextResourceLoader () {
+        }
+
+        protected IContextResourceLoader ResourceLoader { get; set; }
+
         protected static bool Applied { get; set; }
 
         public override void ApplyResources (IApplicationContext context) {
+
             if (Applied)
                 return;
 
+            ResourceLoader?.ApplyResources (context);
+
             context.Factory.Add<ICompressionWorker, CompressionWorker> ();
 
-            var streamContentIoPool = context.Pooled<ContentDetectorPool> ();
-            streamContentIoPool.Add (new HtmlContentDetector ());
-            streamContentIoPool.Add (new PdfContentDetector ());
-            streamContentIoPool.Add (new TextContentDetector ());
 
             Applied = true;
         }
     }
+
+   
 }

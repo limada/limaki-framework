@@ -266,7 +266,7 @@ namespace Limaki.Data {
 
         public static Iori FromIori (this Iori iori, Iori other) => new Copier<Iori> ().Copy (other, iori);
 
-        public static Iori Adjust (Iori iori) {
+        public static Iori Adjust (this Iori iori) {
             if (iori == null || iori?.Provider == null)
                 return iori;
 
