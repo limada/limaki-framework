@@ -18,6 +18,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using Limaki.Common.Linqish;
 using Limaki.Data;
+using Limaki.LinqData;
 using Limaki.UnitsOfWork.Model;
 
 namespace Limaki.UnitsOfWork.Data {

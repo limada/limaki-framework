@@ -20,6 +20,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Limaki.Common.Linqish;
 using Limaki.Data;
+using Limaki.LinqData;
 using Mono.Linq.Expressions;
 
 namespace Limaki.UnitsOfWork.Data {

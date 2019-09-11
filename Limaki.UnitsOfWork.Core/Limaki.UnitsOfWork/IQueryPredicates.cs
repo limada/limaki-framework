@@ -6,12 +6,10 @@ using Limaki.Common.Collections;
 
 namespace Limaki.UnitsOfWork {
     
-    public interface IQueryPredicates {
+    public interface IQueryPredicates : IPaged {
         
         Guid MainQuery { get; set; }
         GuidFlags Resolve { get; set; }
-
-        Paging Paging { get; set; }
 
         IQueryable<T> ApplyExpression<T> (IQueryable<T> query, params Expression<Func<T, bool>>[] exps);
         IQueryable<T> ApplyExpression<T> (IQueryable<T> query, IEnumerable<Expression<Func<T, bool>>> exps, bool orElse = false);

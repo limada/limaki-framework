@@ -87,10 +87,9 @@ namespace Limaki.Common.Reflections {
         }
 
         public PropertyInfo[] Members (Type type, Func<PropertyInfo, bool> memberFilter) {
-            PropertyInfo[] members = null;
-            if (!_members.TryGetValue(type, out members)) {
-                members = type.GetProperties(BindingFlags).Where(memberFilter).ToArray();
-                _members.Add(type, members);
+            if (!_members.TryGetValue (type, out PropertyInfo [] members)) {
+                members = type.GetProperties (BindingFlags).Where (memberFilter).ToArray ();
+                _members.Add (type, members);
             }
             return members;
         }

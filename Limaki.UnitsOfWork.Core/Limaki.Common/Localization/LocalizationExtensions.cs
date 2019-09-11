@@ -29,36 +29,55 @@ namespace Limaki {
         public static ISet<string> MissingLocalisations = new HashSet<string> ();
 
         public static string DictionaryFilename { get; set; } = "GermanDict.csv";
-        public static byte[] DictionaryResource { get; set; }
+        public static byte [] DictionaryResource { get; set; }
 
         static Localization () {
             Init ();
         }
 
-        public static void Init () {
-            
-            void Read (TextReader reader) {
-                var line = reader.ReadLine ();
-                while (line != null) {
-                    if (!string.IsNullOrEmpty (line) && line.StartsWith ("\"")) {
-                        var entry = line.Split (new string[] { "\",\"" }, StringSplitOptions.None);
-                        LocalisationDictionary[entry[0].TrimStart ('"')] = entry[1].TrimEnd ('"');
-                    }
-                    line = reader.ReadLine ();
-                }
-                reader.Dispose ();
+        public static void Add (string filename) {
+
+            if (!File.Exists (filename))
+                return;
+
+            using (var reader = new StreamReader (filename)) {
+                Add (reader);
             }
+        }
+
+        public static void Add (byte [] resource) {
+
+            if (resource == null)
+                return;
+
+            Add (new StreamReader (new MemoryStream (resource)));
+        }
+
+        public static void Add (TextReader reader) {
+
+            var line = reader.ReadLine ();
+            while (line != null) {
+                if (!string.IsNullOrEmpty (line) && line.StartsWith ("\"")) {
+                    var entry = line.Split (new string [] { "\",\"" }, StringSplitOptions.None);
+                    LocalisationDictionary [entry [0].TrimStart ('"')] = entry [1].TrimEnd ('"');
+                }
+                line = reader.ReadLine ();
+            }
+            reader.Dispose ();
+        }
+
+        public static void Init () {
 
             if (File.Exists (DictionaryFilename)) {
 
                 LocalisationDictionary.Clear ();
 
-                Read (new StreamReader (DictionaryFilename));
+                Add (new StreamReader (DictionaryFilename));
 
             }
 
             if (DictionaryResource != null) {
-                Read (new StreamReader (new MemoryStream (DictionaryResource)));
+                Add (DictionaryResource);
             }
 
         }

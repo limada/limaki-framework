@@ -15,6 +15,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Limaki.Data;
+using Limaki.LinqData;
 using Limaki.UnitsOfWork.Model;
 using Limaki.UnitsOfWork.Model.Dto;
 

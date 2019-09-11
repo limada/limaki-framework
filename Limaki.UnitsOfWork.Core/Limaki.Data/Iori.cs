@@ -17,6 +17,9 @@ using System.Runtime.Serialization;
 using Limaki.Common;
 using System.Xml;
 using System.Collections.Specialized;
+using System.Linq;
+using System.Text;
+using System;
 
 namespace Limaki.Data {
 
@@ -30,8 +33,10 @@ namespace Limaki.Data {
 
         [DataMember]
         public string Path { get; set; }
+
         [DataMember]
         public string Name { get; set; }
+
         [DataMember]
         public string Extension { get; set; }
 
@@ -42,6 +47,7 @@ namespace Limaki.Data {
 
         [DataMember]
         public string User { get; set; }
+
         [DataMember]
         public string Password { get; set; }
 
@@ -50,6 +56,9 @@ namespace Limaki.Data {
 
         [DataMember]
         public IoMode AccessMode { get; set; }
+
+        [DataMember]
+        public string Optional { get; set; }
 
         /// <summary>
         /// extracts the information of filename and fills dataBaseInfo 
@@ -71,6 +80,7 @@ namespace Limaki.Data {
             h = (h << 5) - h + (User?.GetHashCode () ?? 1);
             h = (h << 5) - h + (Password?.GetHashCode () ?? 1);
             h = (h << 5) - h + (Provider?.GetHashCode () ?? 1);
+            h = (h << 5) - h + (Optional?.GetHashCode () ?? 1);
             h = (h << 5) - h + AccessMode.GetHashCode ();
             return h;
         }
@@ -80,7 +90,8 @@ namespace Limaki.Data {
                 return true;
             if (obj is Iori other) {
                 return other.Path == Path && other.Name == Name && other.Extension == Extension && other.Server == Server && other.Port == Port &&
-                            other.User == User && other.Password == Password && other.Provider == Provider && other.AccessMode == AccessMode;
+                            other.User == User && other.Password == Password && other.Provider == Provider && other.AccessMode == AccessMode
+                            && other.Optional == Optional;
             }
             return false;
         }
@@ -95,18 +106,38 @@ namespace Limaki.Data {
         public static string ConnectionString (this Iori iori) {
 
             var provider = iori.Provider.ToLower ();
+
             if (provider == "mysql") {
-                return $"Server = {iori.Server}; Database = {iori.Name}; Uid = {iori.User}; Pwd = {iori.Password}; charset = utf8; pooling=false;SslMode=none";
-            } else if (provider == "firebird") {
+                return $"Server = {iori.Server}; Database = {iori.Name}; Uid = {iori.User}; Pwd = {iori.Password}; charset = utf8; pooling=false; SslMode=none";
+            }
+
+            if (provider == "firebird") {
                 return $"User={iori.User};Password={iori.Password};Database={iori.ToFileName ()};DataSource={iori.Server};";
-            } else if (provider == "sqlite") {
-                return $"Data Source = {iori.ToFileName ()}; Version = 3;";
-            } else if (provider.StartsWith ("postgres")) {
+            }
+
+            if (provider.StartsWith ("sqlite")) {
+                return $"Data Source = {iori.ToFileName ()}";
+            }
+
+            if (provider.StartsWith ("postgres")) {
                 var port = iori.Port == 0 ? "" : $"Port={iori.Port};";
                 return $"User ID={iori.User};Password={iori.Password};Database={iori.ToFileName ()};Host={iori.Server};{port}";
-            } else if (provider.StartsWith ("sqlserver")) {
-                return $"User Id={iori.User};Password={iori.Password};Initial Catalog={iori.Name};Data Source={iori.Server};";
             }
+
+            if (provider.StartsWith ("sqlserver")) {
+                var db = $"Initial Catalog={iori.Name};Data Source={iori.Server};";
+                if (!string.IsNullOrEmpty (iori.Optional)) {
+                    db = $"{db};{iori.Optional}";
+                }
+                if (iori.User?.ToLower () == "integrated security")
+                    return $"{db}Integrated Security=True";
+                return $"{db}User Id={iori.User};Password={iori.Password};";
+            }
+
+            if (provider.StartsWith ("oracle")) {
+                return $"Data Source = {iori.Server}; User ID = {iori.User}; Password = {iori.Password};";
+            }
+
             return null;
 
         }
@@ -132,13 +163,26 @@ namespace Limaki.Data {
 
         public static Iori FromXmlStream (this Iori iori, string rootElement, Stream source) {
 
-            var reader = XmlDictionaryReader.CreateTextReader (source, XmlDictionaryReaderQuotas.Max);
+            var reader = XmlReader.Create (source, new XmlReaderSettings () {
+                ConformanceLevel = ConformanceLevel.Fragment
+            });
             var serializer = new DataContractSerializer (typeof (Iori));
-            reader.ReadStartElement (rootElement);
-            while (serializer.IsStartObject (reader)) {
+
+            while (!reader.EOF && !reader.IsStartElement (rootElement)) {
+                reader.Skip ();
+            }
+            if (reader.IsStartElement (rootElement)) {
+                reader.ReadStartElement ();
                 iori.FromIori (serializer.ReadObject (reader) as Iori);
             }
+
             return iori;
+        }
+
+        public static Iori FromXmlFile (this Iori iori, string rootElement, string fileName) {
+            using (var s = File.OpenRead (fileName)) {
+                return FromXmlStream (iori, rootElement, s);
+            }
         }
 
         public static void ToXmlStream (this Iori iori, string rootElement, Stream sink) {
@@ -155,34 +199,64 @@ namespace Limaki.Data {
             writer.Flush ();
         }
 
-
+        const char appDelim = '|';
         public static Iori FromAppSettings (this Iori iori, NameValueCollection appSettings) {
-
+            var settingsString = new StringBuilder ();
             for (int i = 0; i < appSettings.Count; i++) {
-                string key = appSettings.GetKey (i);
+                string key = appSettings.GetKey (i).Replace ("Database", "");
                 string data = appSettings.Get (i);
 
-                if (key == "DataBaseFileName") {
+                settingsString.Append ($"{key}={data}{appDelim}");
+            }
+            return FromSettingsKey (iori, settingsString.ToString ());
+
+        }
+
+        public static Iori FromSettingsKey (this Iori iori, string appSettings) {
+            if (appSettings == null)
+                return iori;
+
+            foreach (var value in appSettings.Split (appDelim)) {
+
+                var val = value.Trim ();
+
+                if (string.IsNullOrWhiteSpace (val))
+                    continue;
+
+                var setting = val.Split (new [] { '=' }, 2);
+                string key = setting.FirstOrDefault ().Trim ();
+                string data = setting.LastOrDefault ().Trim ();
+
+                if (key == "FileName") {
                     FromFileName (iori, data);
                 }
 
-                if (key == "DataBaseServer") {
+                if (key == nameof (Iori.Server)) {
                     iori.Server = data;
                 }
-                if (key == "DataBaseName") {
+                if (key == nameof (Iori.Name)) {
                     iori.Name = data;
                 }
-                if (key == "DataBasePath") {
+                if (key == nameof (Iori.Extension)) {
+                    iori.Extension = data;
+                }
+                if (key == nameof (Iori.Path)) {
                     iori.Path = data;
                 }
-                if (key == "DataBaseUser") {
+                if (key == nameof (Iori.User)) {
                     iori.User = data;
                 }
-                if (key == "DataBasePassword") {
+                if (key == nameof (Iori.Password)) {
                     iori.Password = data;
                 }
-                if (key == "DataBaseProvider") {
+                if (key == nameof (Iori.Provider)) {
                     iori.Provider = data;
+                }
+                if (key == nameof (Iori.Port) && int.TryParse (data, out var port)) {
+                    iori.Port = port;
+                }
+                if (key == nameof (Iori.Optional)) {
+                    iori.Optional = data;
                 }
 
             }
@@ -191,5 +265,18 @@ namespace Limaki.Data {
         }
 
         public static Iori FromIori (this Iori iori, Iori other) => new Copier<Iori> ().Copy (other, iori);
+
+        public static Iori Adjust (Iori iori) {
+            if (iori == null || iori?.Provider == null)
+                return iori;
+
+            if (iori.Provider.ToLower ().Contains ("sqlite") && !iori.Provider.ToLower ().Contains ("sqlite.")) {
+                iori = Iori.Clone (iori);
+                iori.Provider = Environment.OSVersion.VersionString.Contains ("Unix")
+                     ? iori.Provider.Replace ("SQLite", "SQLite.Mono")
+                     : iori.Provider.Replace ("SQLite", "SQLite.Classic");
+            }
+            return iori;
+        }
     }
 }

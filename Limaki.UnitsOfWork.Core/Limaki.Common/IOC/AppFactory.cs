@@ -54,7 +54,7 @@ namespace Limaki.Common.IOC {
 
         public virtual void ResolveAssembly (Assembly assembly) {
             try {
-                Trace.WriteLine ($"loading assembly {assembly.FullName}");
+                Debug.WriteLine ($"loading assembly {assembly.FullName}");
                 foreach (var type in assembly.GetTypes().Where(
                     t =>
                         t.IsClass &&
@@ -69,7 +69,7 @@ namespace Limaki.Common.IOC {
 
                 }
             } catch (Exception ex) {
-                Trace.WriteLine(string.Format("Error resolving assemblys {0}:{1}", assembly.FullName, ex.Message));
+                Trace.WriteLine($"Error resolving assemblys {assembly.FullName}:{ex.Message}");
             }
         }
 
@@ -94,7 +94,7 @@ namespace Limaki.Common.IOC {
 						ResolveAssemblys (refasses, filter);
 					}
 				} catch (Exception ex) {
-					Trace.WriteLine (string.Format ("Error loading assembly {0}:{1}", ass, ex.Message));
+					Trace.WriteLine ($"Error loading assembly {ass}:{ex.Message}");
 				}
 			}
 		}
@@ -110,7 +110,7 @@ namespace Limaki.Common.IOC {
 						assemblies.Add(ass);
                     }
                 } catch(Exception ex) {
-                    Trace.WriteLine(string.Format("Error loading assembly {0}:{1}", file, ex.Message));
+                    Trace.WriteLine($"Error loading assembly {file}:{ex.Message}");
                 }
             }
         }
@@ -128,7 +128,7 @@ namespace Limaki.Common.IOC {
                 var assemblyName = AssemblyName.GetAssemblyName(codeBase);
                 return Assembly.Load(assemblyName);
             } catch (Exception ex) {
-                Trace.WriteLine(string.Format("Error loading assembly {0}:{1}", codeBase, ex.Message));
+                Trace.WriteLine($"Error loading assembly {codeBase}:{ex.Message}");
                 return null;    
             }
 

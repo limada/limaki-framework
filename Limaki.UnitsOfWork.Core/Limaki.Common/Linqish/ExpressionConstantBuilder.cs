@@ -94,9 +94,7 @@ namespace Limaki.Common.Linqish {
             }
         }
 
-        bool IsConstant(Expression expression) {
-            return new ConstantIs().HasConstant(expression);
-        }
+        bool IsConstant (Expression expression) => new ConstantIs ().HasConstant (expression);
 
         private static object ConstantValue(Expression expression) {
             object value;

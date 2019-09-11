@@ -37,6 +37,7 @@ namespace Limaki.UnitsOfWork.Data {
                 Log.Info ($"{nameof (CheckVersion)} for {currentVersion}");
 
                 using (var aquore = CreateQuore ()) {
+
                     if (aquore is ITridleQuore quore) {
 
                         Log.Info ($"{nameof(TridleRepository)} check: {TridleRepository.Ensure (quore)}");
@@ -83,6 +84,7 @@ namespace Limaki.UnitsOfWork.Data {
         protected abstract IDictionary<string, Guid> ModelGuids { get; }
 
         public Guid GetModelGuid (Type type) {
+            // TODO: make use of TypeGuidAttribute
             var name = type.Name;
             if (type.IsInterface && name.StartsWith ("I"))
                 name = name.Remove (0, 1);
@@ -93,7 +95,7 @@ namespace Limaki.UnitsOfWork.Data {
         }
 
         public T CreateRepository<T> () where T : EntityRepository, new() {
-            var result = new T { Log = Log, Factory = DtoFactory, ProveError = m => Log.Error (m), ModelGuid = GetModelGuid };
+            var result = new T { Log = Log, Factory = DtoFactory, ProveError = Log.Error, ModelGuid = GetModelGuid };
 
             return result;
         }

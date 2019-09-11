@@ -16,6 +16,7 @@ using System;
 using System.Linq.Expressions;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace Limaki.Common.Linqish {
 
@@ -59,6 +60,78 @@ namespace Limaki.Common.Linqish {
             }
             return query;
 
+        }
+
+
+
+        /// <summary>
+        /// Returns the ParameterExpression for the LINQ parameter.
+        /// </summary>
+        /// <param name="expression"></param>
+        /// <returns></returns>
+        /// <remarks>from: AutoMapper.Extensions.ExpressionMapping/Extensions/VisitorExtensions</remarks>
+        public static ParameterExpression GetParameterExpression (this Expression expression) {
+            if (expression == null)
+                return null;
+
+            //the node represents parameter of the expression
+            switch (expression.NodeType) {
+            case ExpressionType.Parameter:
+                return (ParameterExpression)expression;
+            case ExpressionType.Quote:
+                return GetParameterExpression (GetMemberExpression ((LambdaExpression)((UnaryExpression)expression).Operand));
+            case ExpressionType.Lambda:
+                return GetParameterExpression (GetMemberExpression ((LambdaExpression)expression));
+            case ExpressionType.ConvertChecked:
+            case ExpressionType.Convert:
+                var ue = expression as UnaryExpression;
+                return GetParameterExpression (ue?.Operand);
+            case ExpressionType.MemberAccess:
+                return GetParameterExpression (((MemberExpression)expression).Expression);
+            case ExpressionType.Call:
+                var methodExpression = expression as MethodCallExpression;
+                var memberExpression = methodExpression?.Object as MemberExpression;//Method is an instance method
+
+                var isExtension = methodExpression != null && methodExpression.Method.IsDefined (typeof (ExtensionAttribute), true);
+                if (isExtension && memberExpression == null && methodExpression.Arguments.Count > 0)
+                    memberExpression = methodExpression.Arguments [0] as MemberExpression;//Method is an extension method based on the type of methodExpression.Arguments[0] and methodExpression.Arguments[0] is a member expression.
+
+                return isExtension && memberExpression == null && methodExpression.Arguments.Count > 0
+                    ? GetParameterExpression (methodExpression.Arguments [0])
+                    : (memberExpression == null ? null : GetParameterExpression (memberExpression.Expression));
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Gets the member expression.
+        /// </summary>
+        /// <returns>The member expression.</returns>
+        /// <param name="expr">Expr.</param>
+        /// <remarks>from: AutoMapper.Extensions.ExpressionMapping/Extensions/VisitorExtensions</remarks>
+        public static MemberExpression GetMemberExpression (LambdaExpression expr) {
+            MemberExpression me;
+            switch (expr.Body.NodeType) {
+            case ExpressionType.Convert:
+            case ExpressionType.ConvertChecked:
+                var ue = expr.Body as UnaryExpression;
+                me = ue?.Operand as MemberExpression;
+                break;
+            default:
+                me = expr.Body as MemberExpression;
+                if (me == null) {
+                    if (expr.Body is BinaryExpression binaryExpression) {
+                        if (binaryExpression.Left is MemberExpression left)
+                            return left;
+                        if (binaryExpression.Right is MemberExpression right)
+                            return right;
+                    }
+                }
+                break;
+            }
+
+            return me;
         }
     }
 }

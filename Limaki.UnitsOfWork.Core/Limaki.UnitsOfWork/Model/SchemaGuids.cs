@@ -27,11 +27,19 @@ namespace Limaki.UnitsOfWork.Model {
     }
 
     public static class SchemaExtensions {
+        /// <summary>
+        /// Key = Type.Name
+        /// Value = Guid of the Type
+        /// </summary>
         public static IDictionary<string, Guid> ModelGuids (this SchemaGuids.IModelGuids model) =>
-        model.GetType ().GetProperties (BindingFlags.Static | BindingFlags.Public)
-                 .Where (p => p.PropertyType == typeof (Guid))
-                  .Select (p => new { t = p.Name, g = (Guid)p.GetValue (null) })
-                  .ToDictionary (p => p.t, p => p.g);
+            model.GetType ().GetProperties (BindingFlags.Static | BindingFlags.Public)
+                     .Where (p => p.PropertyType == typeof (Guid))
+                      .SelectMany (p => {
+                          var guid = (Guid)p.GetValue (null);
+                          return p.GetCustomAttributes<TypeGuidAttribute> ().Select (a => a.Type.Name).Select (tg => new { t = tg, g = guid });
+
+                      })
+                      .ToDictionary (p => p.t, p => p.g);
     }
 
 }

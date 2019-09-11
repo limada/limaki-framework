@@ -18,7 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 
-namespace Limaki.Data {
+namespace Limaki.LinqData {
 
     /// <summary>
     /// An IQueryable wrapper that allows to convert the query's expression tree before the inner provider gets it

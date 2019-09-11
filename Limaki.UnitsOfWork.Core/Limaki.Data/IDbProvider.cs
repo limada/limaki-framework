@@ -15,8 +15,7 @@
 using System.Collections.Generic;
 using System.Data;
 
-namespace Limaki.Data
-{
+namespace Limaki.Data {
 
     public interface IDbProvider {
 
@@ -28,25 +27,25 @@ namespace Limaki.Data
         string ConnectionString (Iori iori);
         IDbConnection GetConnection (Iori iori);
 
-		bool CreateDatabase(Iori iori) ;
-		bool DropDatabase(Iori iori);
+        bool CreateDatabase (Iori iori);
+        bool DropDatabase (Iori iori);
         bool DataBaseExists (Iori iori);
 
-		bool CloseEverything();
-		
-	}
+        bool CloseEverything ();
 
-    public class DbProviderPool  {
+    }
+
+    public class DbProviderPool {
 
         protected Dictionary<string, IDbProvider> _providers = new Dictionary<string, IDbProvider> ();
 
         public void Add (IDbProvider fbProvider) {
-            _providers[fbProvider.Name] = fbProvider;
+            _providers [fbProvider.Name] = fbProvider;
         }
 
         public IDbProvider Get (string name) {
             IDbProvider result = null;
-            _providers.TryGetValue (name, out result);
+            _providers.TryGetValue (name ?? "", out result);
             return result;
         }
     }

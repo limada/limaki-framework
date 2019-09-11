@@ -16,10 +16,10 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Linq.Expressions;
 using Limaki.Common.Linqish;
+using Limaki.Data;
 
-namespace Limaki.Data {
+namespace Limaki.LinqData {
 
     public static class DomainQuoreExtensions {
 
@@ -45,6 +45,16 @@ namespace Limaki.Data {
                 }
             }
 
+        }
+
+        public static string CreateSqlStatement<T> (this IDomainQuore quore, bool withIndices = false) {
+            if (quore.Quore is IModeledQuore modeledQuore) {
+                modeledQuore.ModelBuilder.CheckModel<T> (quore.Quore.Gateway);
+                if (quore.Quore.Gateway is IGatewayExtended gw) {
+                    return gw.CreateTableStatement<T> (withIndices: withIndices);
+                }
+            }
+            return null;
         }
     }
 }

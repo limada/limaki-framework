@@ -18,8 +18,9 @@ using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Limaki.Data;
 
-namespace Limaki.Data {
+namespace Limaki.LinqData {
 
     /// <summary>
     /// A Quore (Query Store) provides access to a querable source of entities.
@@ -34,6 +35,8 @@ namespace Limaki.Data {
 
         IQueryable<T> GetQuery<T> ();
 
+        void Insert<T> (IEnumerable<T> entities);
+
         void Upsert<T> (IEnumerable<T> entities);
 
         void Remove<T> (IEnumerable<T> entities);
@@ -44,6 +47,10 @@ namespace Limaki.Data {
 
         void EndTransaction (IQuoreTransaction transaction);
 
+    }
+
+    public interface IModeledQuore : IQuore { 
+        IDbModelBuilder ModelBuilder { get; }
     }
 
     public interface IQuoreTransaction : IDisposable {

@@ -22,7 +22,7 @@ namespace Limaki.UnitsOfWork.Usecases {
 
         IReportSettingsProvider _reportSettings = null;
         public virtual IReportSettingsProvider ReportSettings {
-            get => _reportSettings ?? (_reportSettings = Registry.Pooled<IReportSettingsProvider> ());
+            get => _reportSettings;
             set => _reportSettings = value;
         }
 

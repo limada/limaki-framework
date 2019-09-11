@@ -17,7 +17,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 
-namespace Limaki.Data {
+namespace Limaki.LinqData {
 
     /// <summary>
     /// mapping methods to translate the calls of an <see cref="IQuore"/>

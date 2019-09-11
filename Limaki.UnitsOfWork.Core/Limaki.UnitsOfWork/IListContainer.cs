@@ -16,6 +16,7 @@ using System;
 using System.Collections.Generic;
 
 namespace Limaki.UnitsOfWork {
+
     public interface IListContainer : IDisposable {
         void Set<T> (IEnumerable<T> value);
         IEnumerable<Type> KnownTypes ();

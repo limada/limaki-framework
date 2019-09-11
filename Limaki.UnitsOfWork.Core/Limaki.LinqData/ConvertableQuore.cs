@@ -16,8 +16,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using Limaki.Data;
 
-namespace Limaki.Data {
+namespace Limaki.LinqData {
 
     public class ConvertableQuore : IQuore, IConvertableQuore {
 
@@ -46,6 +47,10 @@ namespace Limaki.Data {
                 return new ConvertableQuery<T> (InnerStore.GetQuery<T> (), Convert);
             else
                 return InnerStore.GetQuery<T> ();
+        }
+
+        public virtual void Insert<T> (IEnumerable<T> entities) {
+            InnerStore.Insert (entities);
         }
 
         public virtual void Upsert<T> (IEnumerable<T> entities) {

@@ -44,10 +44,15 @@ namespace Limaki.UnitsOfWork.Model {
 
         public virtual void InstrumentEntity<I, T> (IFactory factory, bool mapping = true) where I : IIdEntity where T : IdEntity, I, new() {
 
-            factory.Add<I> (() => new T { CreatedAt = DateTime.Now, Id = Guid.NewGuid () });
-            knownClazzes[typeof (I)] = typeof (T);
-
+            Instrument<I, T> (factory, mapping);
             AddIdEntityStuff<I> (factory);
+        }
+
+        public virtual void Instrument<I, T> (IFactory factory, bool mapping = true) where T : I, new() {
+
+            factory.Add<I> (() => new T ());
+            knownClazzes [typeof (I)] = typeof (T);
+
             if (mapping) {
                 if (!EntityMapping.Any (e => e.Item1 == typeof (I)))
                     EntityMapping.Add (Tuple.Create (typeof (I), typeof (T)));

@@ -2,8 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using Limaki.Data;
 
-namespace Limaki.Data {
+namespace Limaki.LinqData {
 
     public class InMemoryDbQuoreProvider : IDbProvider {
 

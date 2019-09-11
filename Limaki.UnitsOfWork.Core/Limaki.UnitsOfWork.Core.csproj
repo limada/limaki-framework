@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <ReleaseVersion>19.7.0.1</ReleaseVersion>
   </PropertyGroup>
   <PropertyGroup>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
@@ -13,22 +14,23 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <LangVersion>Latest</LangVersion>
+    <DefineConstants>TRACE;DEBUG;NETSTANDARD;NETSTANDARD2_0</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <LangVersion>Latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="System.ComponentModel.Annotations" Version="4.5.0" />
-    <PackageReference Include="System.ServiceModel.Primitives" Version="4.5.3" />
+  </ItemGroup>
+  <ItemGroup Condition="$(DefineConstants.Contains('WCF'))">
+  <PackageReference Include="System.ServiceModel.Primitives" Version="4.5.3" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="[Obsolete]\" />
     <Folder Include="Limaki.UnitsOfWork\Model\Dto\" />
     <Folder Include="Limaki.UnitsOfWork\Cms\" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Remove="Limaki.LinqData\Limada.Data\IdLink.cs" />
-    <Compile Remove="Limaki.UnitsOfWork\Cms\Detectors\ImageContentDetector.cs" />
+    <Folder Include="Limaki.Data\" />
+    <Folder Include="Limaki.UnitsOfWork\Model\Hash\" />
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>

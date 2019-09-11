@@ -13,10 +13,8 @@
  */
 
 using System.Data;
-using System.Data.Common;
-using Limaki.Common;
 
-namespace Limaki.Data {
+namespace Limaki.LinqData {
 
     public class QuoreDbTransaction : IQuoreTransaction {
 

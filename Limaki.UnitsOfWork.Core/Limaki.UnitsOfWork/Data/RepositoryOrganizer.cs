@@ -16,6 +16,7 @@ using Limaki.Common;
 using Limaki.Data;
 using System;
 using System.IO;
+using Limaki.LinqData;
 
 namespace Limaki.UnitsOfWork.Data {
 
@@ -32,7 +33,7 @@ namespace Limaki.UnitsOfWork.Data {
         
         public Func<T> CreateQuoreFunc { get; set; }
 
-        public T CreateQuore () { 
+        public virtual T CreateQuore () { 
             var quore = CreateQuoreFunc ();
             var gateway = quore.Quore.Gateway;
             var db = string.IsNullOrEmpty (gateway.Iori.Server) ? Path.GetFullPath (gateway.Iori.ToFileName ()) : $"{gateway.Iori.Server}:{gateway.Iori.Port} {gateway.Iori.Name}";

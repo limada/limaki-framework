@@ -16,14 +16,16 @@ using System;
 
 namespace Limaki.Common.Collections {
 
-	public class GuidFlags : Flags<Guid> {
+    public class GuidFlags : Flags<Guid> {
 
-        public GuidFlags (params Guid[] flags) { Add (flags); }
-        public static GuidFlags __ (params Guid[] flags) => new GuidFlags (flags);
+        public GuidFlags () { }
+        public GuidFlags (params Guid [] flags) { Add (flags); }
+        public static GuidFlags __ (params Guid [] flags) => new GuidFlags (flags);
         public static implicit operator GuidFlags (Guid value) => new GuidFlags (value);
-        public static implicit operator GuidFlags (Guid[] value) => new GuidFlags (value);
+        public static implicit operator GuidFlags (Guid [] value) => new GuidFlags (value);
 
-        public static GuidFlags operator | (GuidFlags c1, Guid g) => (GuidFlags)((Flags<Guid>)c1 | g);
+        public static GuidFlags operator | (GuidFlags c1, Guid g) => With (c1, g);
+        public static GuidFlags operator | (GuidFlags c1, GuidFlags g) => With (c1, g);
 
-	}
+    }
 }

@@ -12,6 +12,7 @@
  * 
  */
 
+#if WCF
 using System.ServiceModel;
 
 namespace Limaki.UnitsOfWork {
@@ -40,8 +41,28 @@ namespace Limaki.UnitsOfWork {
         [OperationContract, FaultContract (typeof (string))]
         string ServerVersion ();
     }
-
-    
-
-    
 }
+#else
+namespace Limaki.UnitsOfWork {
+
+    public interface IServiceBase {
+        /// <summary>
+        /// gives back true
+        /// if service can be pinged
+        /// </summary>
+        /// <returns></returns>
+        bool Ping ();
+
+        /// <summary>
+        /// executes tests on the service
+        /// eg. database connection
+        /// </summary>
+        /// <returns>null if everything ok, else error-string</returns>
+        string Test ();
+
+        byte [] Resource (string name);
+
+        string ServerVersion ();
+    }
+}
+#endif

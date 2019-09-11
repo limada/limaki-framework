@@ -1,8 +1,6 @@
 using System;
-using System.Collections.Generic;
 
-
-namespace Limaki.Data {
+namespace Limaki.LinqData {
 
     /// <summary>
     /// base interface for domain specific quore

@@ -65,8 +65,11 @@ namespace Limaki.Common.Text.HTML {
 
         }
 
-        public const string HtmUtf8Begin = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">"
+        public const string HtmUtf8Begin99 = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">"
                                       + "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />"
                                       + "<html xmlns=\"http://www.w3.org/1999/xhtml\" >";
+
+        public const string HtmUtf8Head = "<!DOCTYPE html>\n<Head>\n"
+                                            + "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />";
     }
 }

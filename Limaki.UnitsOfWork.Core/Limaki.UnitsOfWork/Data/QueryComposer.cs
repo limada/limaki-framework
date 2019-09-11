@@ -122,7 +122,8 @@ namespace Limaki.UnitsOfWork.Data {
                 var sourceType = prop.pre.PropertyType.GetGenericArguments ()[0].GetGenericArguments ()[0];
                 var sinkType = prop.type;
 
-                var flagOf = Expression.Call (queryResolve, typeof (GuidFlags).GetMethod (nameof (GuidFlags.FlagOf), new Type[] { typeof (string) }), Expression.Constant (prop.type.Name));
+                // TODO: make use of TypeGuidAttribute
+                var flagOf = Expression.Call (queryResolve, typeof (GuidFlags).GetMethod (nameof (GuidFlags.FlagOf), new Type[] { typeof (Type) }), Expression.Constant (prop.type));
                 var assignFlag = Expression.Assign (flag, flagOf);
                 blockExpressions.Add (assignFlag);
 

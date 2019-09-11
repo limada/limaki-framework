@@ -22,7 +22,7 @@ using Mono.Linq.Expressions;
 
 namespace Limaki.UnitsOfWork.Data {
 
-    public class QuerablesBase {
+    public class QuerablesBase : IPaged {
 
         public Paging Paging { get; set; }
 

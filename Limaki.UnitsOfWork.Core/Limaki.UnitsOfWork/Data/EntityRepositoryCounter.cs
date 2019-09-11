@@ -36,15 +36,14 @@ namespace Limaki.UnitsOfWork.Data {
             var result = new TCounts ();
 
             foreach (var predicateProp in preds.GetType ().GetProperties ().Where (p => p.PropertyType.BaseType == typeof (LambdaExpression))) {
-                var predicate = predicateProp.GetValue (preds) as LambdaExpression;
-                if (predicate != null) {
+                if (predicateProp.GetValue (preds) is LambdaExpression predicate) {
                     Log.Debug (predicate.ToString ());
-                    var elementType = Mapper.MapIn (predicate.Type.GenericTypeArguments[0]);
+                    var elementType = Mapper.MapIn (predicate.Type.GenericTypeArguments [0]);
                     predicate = Mapper.Map (predicate, elementType) as LambdaExpression;
                     var queryableProperty = quore.GetType ().GetProperties ()
                                  .Where (p => p.PropertyType.IsGenericType
                                          && p.PropertyType.GetGenericTypeDefinition () == typeof (IQueryable<>)
-                                         && p.PropertyType.GenericTypeArguments[0] == elementType)
+                                         && p.PropertyType.GenericTypeArguments [0] == elementType)
                                  .FirstOrDefault ();
                     if (queryableProperty != null) {
                         var queryable = queryableProperty.GetValue (quore);
@@ -53,7 +52,7 @@ namespace Limaki.UnitsOfWork.Data {
                         var tn = new TypeInfo { Type = elementType }.ImplName;
                         var index = result.GetIndex (tn);
                         if (index != Guid.Empty) {
-                            result.Counts[index] = count;
+                            result.Counts [index] = count;
                         }
                     }
                 }

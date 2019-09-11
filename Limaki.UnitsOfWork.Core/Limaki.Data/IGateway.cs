@@ -18,7 +18,7 @@ using Limaki.Common.Collections;
 
 namespace Limaki.Data {
 
-    public interface IGateway:IDisposable {
+    public interface IGateway : IDisposable {
 
         Iori Iori { get; }
 

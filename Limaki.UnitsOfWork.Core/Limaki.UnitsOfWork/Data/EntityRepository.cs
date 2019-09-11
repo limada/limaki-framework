@@ -64,6 +64,38 @@ namespace Limaki.UnitsOfWork.Data {
 
         public virtual void AddToMapNoChecks<I> (IdentityMap map, IQueryable<I> source) where I : IIdEntity => AddToMap (map, source, null);
 
+        /// <summary>
+        /// Adds all items from <see cref="IEnumerable{T}"/> to an <see cref="IdentityMap"/>
+        /// ATTENTION! Avoid using an <see cref=" IQueryable{T}"/> with this method! 
+        /// If you do so, the <see cref=" IQueryable{T}"/>-<see cref="Expression"/> will not properly mapped to SQL
+        /// </summary>
+        /// <remarks>
+        /// as <see cref="IdentityMap"/> only takes items with same Id, this "Distincts" <see cref="IEnumerable{T}"/>
+        /// </remarks>
+        public virtual void AddToMapYield<I> (IdentityMap map, IEnumerable<I> source, Action<IdentityMap, I> afterAdd = null) where I : IIdEntity {
+
+            if (source == null)
+                return;
+            if (!typeof (I).IsInterface) {
+                Log.Debug ($"WARNING! {typeof (I).Name} is not an interface");
+            }
+            var copier = new Copier<I> ();
+            var factory = map.ItemFactory;
+            foreach (var item in source) {
+                if (map.Contains<I, Guid> (item.Id)) continue;
+                var add = copier.Copy (item, factory.Create<I> ());
+                map.Add (add);
+                afterAdd?.Invoke (map, add);
+                EntityCount++;
+            }
+        }
+
+        /// <summary>
+        /// Adds all items from <see cref="IQueryable{T}"/> to an <see cref="IdentityMap"/>
+        /// </summary>
+        /// <remarks>
+        /// as <see cref="IdentityMap"/> only takes items with same Id, this "Distincts" <see cref="IQueryable{T}"/>
+        /// </remarks>
         public virtual void AddToMap<I> (IdentityMap map, IQueryable<I> source, Action<IdentityMap, I> afterAdd = null) where I : IIdEntity {
 
             if (source == null)
@@ -109,7 +141,7 @@ namespace Limaki.UnitsOfWork.Data {
                 a = b;
         }
 
-        public static IQueryable<T> EmptyQuerable<T> () => new T[0].AsQueryable<T> ();
+        public static IQueryable<T> EmptyQuerable<T> () => new T [0].AsQueryable<T> ();
 
         public string AsString<T> (T item) => item == null ? "null" : item.ToString ();
 
@@ -118,30 +150,52 @@ namespace Limaki.UnitsOfWork.Data {
 
         public IQueryable<E> WhereIfConvertF<I, E> (IQueryable<E> q, Expression<Func<I, bool>> w) where E : I => q.WhereIf (ConvertPredicate<I, E> (w));
 
-        public virtual bool IsPaging (Paging paging) => paging != null && paging.DataRequired && paging.Count > paging.Limit;
+        public virtual bool IsPaging (Paging paging) => paging != null && paging.DataRequired && paging.Count >= paging.Limit;
 
+        /// <summary>
+        /// Adds Skip and Take clause to <see cref="IQueryable{T}"/>
+        /// according to <see cref="Paging"/>
+        /// if Take == 0, <see cref=" Enumerable.Empty{TResult}"/> is returned
+        /// </summary>
+        /// <returns><see cref="IQueryable{T}"/> with Skip and Take-clause</returns>
         public virtual IQueryable<T> AddPagingToQuery<T> (IQueryable<T> query, Paging paging) {
-
+            if (query == null)
+                return default;
             if (!IsPaging (paging)) return query;
 
-            var take = paging.Skip + paging.Take > paging.Count ? paging.Count - paging.Skip : paging.Take;
+            var take = paging.Skip + paging.Take > paging.Count ? Math.Max (0, paging.Count - paging.Skip) : paging.Take;
+            if (take == 0)
+                return Enumerable.Empty<T> ().AsQueryable ();
             return query.Skip (paging.Skip)?.Take (take);
         }
 
-        public virtual void ComposeMainQueryPaging<T> (ref IQueryable<T> query, Paging paging) {
+        /// <summary>
+        /// Sets the paging count with query.Count ()
+        /// </summary>
+        /// <returns>unchanged query</returns>
+        public virtual IQueryable<T> SetPagingCount<T> (IQueryable<T> query, Paging paging) {
             if (query == null)
-                return;
-            query = query.Distinct ();
-
+                return query;
             if (paging != null && paging.CountRequired) {
                 paging.Count = query.Count ();
             }
+            return query;
+        }
 
-            query = AddPagingToQuery (query, paging);
+        /// <summary>
+        /// combines <see cref="SetPagingCount{T}(IQueryable{T}, Paging)"/> and <see cref=" AddPagingToQuery{T}(IQueryable{T}, Paging)"/>
+        /// if distinct, then <see cref="IQueryable{T}/>.Distinct is applied before
+        /// </summary>
+        public virtual void ComposeMainQueryPaging<T> (ref IQueryable<T> query, Paging paging, bool distinct = true) {
+
+            if (query == null)
+                return;
+
+            query = AddPagingToQuery (SetPagingCount (distinct ? query.Distinct () : query, paging), paging);
 
         }
 
-        public virtual void ComposeMainQueryPaging<T> (QuerablesBase querables) {
+        public virtual void ComposeMainQueryPaging<T> (QuerablesBase querables, bool distinct = true) {
             var paging = querables.Paging;
             var queryProp = querables.GetType ()
                 .GetProperties ()
@@ -149,7 +203,7 @@ namespace Limaki.UnitsOfWork.Data {
 
             var query = queryProp.GetValue (querables, null) as IQueryable<T>;
 
-            ComposeMainQueryPaging (ref query, paging);
+            ComposeMainQueryPaging (ref query, paging, distinct);
 
             queryProp.SetValue (querables, query, null);
         }
@@ -158,8 +212,8 @@ namespace Limaki.UnitsOfWork.Data {
 
             var entityType = new TypeInfo { Type = typeof (E) };
             var relationType = new TypeInfo { Type = typeof (R) };
-            var entity = preds.Resolve.FlagOf (entityType.ImplName);
-            var relation = preds.Resolve.FlagOf (relationType.ImplName);
+            var entity = preds.Resolve.FlagOf (entityType.Type);
+            var relation = preds.Resolve.FlagOf (relationType.Type);
 
             var entityPred = preds.GetType ().GetProperties ().First (p => p.Name == entityType.GetPlural (entityType.ImplName)).GetValue (preds);
             var relationPred = preds.GetType ().GetProperties ().First (p => p.Name == relationType.GetPlural (relationType.ImplName)).GetValue (preds);
@@ -179,8 +233,8 @@ namespace Limaki.UnitsOfWork.Data {
 
             var entityType = new TypeInfo { Type = typeof (E) };
             var relationType = new TypeInfo { Type = typeof (R) };
-            var entity = preds.Resolve.FlagOf (entityType.ImplName);
-            var relation = preds.Resolve.FlagOf (relationType.ImplName);
+            var entity = preds.Resolve.FlagOf (entityType.Type);
+            var relation = preds.Resolve.FlagOf (relationType.Type);
 
             var entityPred = preds.GetType ().GetProperties ().First (p => p.Name == entityType.GetPlural (entityType.ImplName)).GetValue (preds);
             var relationPred = preds.GetType ().GetProperties ().First (p => p.Name == relationType.GetPlural (relationType.ImplName)).GetValue (preds);

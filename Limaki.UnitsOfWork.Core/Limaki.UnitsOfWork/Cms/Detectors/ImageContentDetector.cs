@@ -16,7 +16,7 @@ using System;
 using System.IO;
 using System.Text;
 using Limaki.Common;
-using Limaki.Drawing.Imaging;
+using Limaki.Imaging;
 
 namespace Limaki.UnitsOfWork.Cms {
 

@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Limada 
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -12,14 +12,11 @@
  * 
  */
 
-using System.Data;
-using Limaki.Common;
+using System.Collections.Generic;
 
 namespace Limaki.Data {
+    public static class GatewayExtensions {
 
-    public interface IDbGateway : IGateway { 
-
-        IDbProvider Provider { get; }
-
+        public static long BulkCopy<T> (this IGatewayExtended it, IEnumerable<T> source) where T : class => it?.BulkCopy<T> (source, null) ?? -1;
     }
 }

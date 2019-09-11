@@ -42,7 +42,7 @@ namespace Limaki.UnitsOfWork {
         public virtual void Set<T>() {
             var list = ListProperty<T>();
             if (list != null) {
-                list.SetValue(this, this.Map.Stored<T>(), null);
+                list.SetValue(this, Map.Stored<T>(), null);
             } else {
                 throw new ArgumentException(this.GetType() + " has no " + typeof(T).Name + " IEnumerable-Property");
             }

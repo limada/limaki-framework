@@ -15,7 +15,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 
 namespace Limaki.Common.Text {
@@ -87,7 +89,7 @@ namespace Limaki.Common.Text {
             return table;
         }
 
-        public static string Between (this StringBuilder text, string start, string end, int startIndex) {
+        public static string Between (this StringBuilder text, string start, string end, int startIndex=0) {
             int posStart = text.IndexOf(start, startIndex);
             if (posStart == -1) return null;
             posStart += start.Length;
@@ -96,7 +98,7 @@ namespace Limaki.Common.Text {
             return text.ToString(posStart, posEnd - posStart);
         }
 
-        public static string Between (this string text, string start, string end, int startIndex) {
+        public static string Between (this string text, string start, string end, int startIndex=0) {
             int posStart = text.IndexOf(start, startIndex);
             if (posStart == -1) return null;
             posStart += start.Length;
@@ -130,6 +132,48 @@ namespace Limaki.Common.Text {
                 return text;
             return String.Concat (Enumerable.Repeat (replaceWith, lastLead))+ text.Substring (lastLead);
             
-        } 
+        }
+
+        public static string ToCamelCase (string name, char delimSource, string delimDest, bool force = false) {
+            if (string.IsNullOrEmpty (name) || (!force && !name.Contains (delimSource))) {
+                return name;
+            }
+            var array = name.Split (delimSource);
+            for (var i = 0; i < array.Length; i++) {
+                var s = array [i];
+                var first = string.Empty;
+                if (s.Length > 0) {
+                    first = Char.ToUpperInvariant (s [0]).ToString ();
+                }
+                var rest = string.Empty;
+                if (s.Length > 1) {
+                    rest = s.Substring (1).ToLowerInvariant ();
+                }
+                array [i] = first + rest;
+            }
+            var newname = string.Join (delimDest, array);
+            if (newname.Length == 0) {
+                newname = name;
+            }
+            return newname;
+        }
+        public static string UnderscoreToCamelCase (string name, bool force = false) => ToCamelCase (name, '_', "", force);
+
+        public static string BlankToCamelCase (string name, bool force = false) => ToCamelCase (name, ' ', "", force);
+
+        public static string GetResourceStream (Assembly assembly, string name) {
+
+            var resourceName = assembly.GetManifestResourceNames ()
+                    .SingleOrDefault (str => str == name);
+
+            if (resourceName == default)
+                return default;
+
+            using (var stream = assembly.GetManifestResourceStream (resourceName))
+            using (var reader = new StreamReader (stream)) {
+                var result = reader.ReadToEnd ();
+                return result;
+            }
+        }
     }
 }

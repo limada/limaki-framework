@@ -46,7 +46,12 @@ namespace Limaki.Common.Collections {
             return KeyFunc(item);
         }
 
-        
+        public virtual TItem GetItem (TKey key) {
+            if (Contains (key))
+                return this [key];
+            return default;
+        }
+
         public virtual TItem Unique(TItem item) {
             var result = item;
             var key = KeyFunc (item);

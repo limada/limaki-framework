@@ -13,13 +13,10 @@
  */
 
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Linq.Expressions;
 using Limaki.Common.Linqish;
 
-namespace Limaki.Data {
+namespace Limaki.LinqData {
 
     public abstract class DomainQuoreBase : IDomainQuore {
         
@@ -51,5 +48,34 @@ namespace Limaki.Data {
         public abstract void Dispose ();
 
     }
-    
+
+    public class QuoreBase : IDomainQuore {
+
+        public QuoreBase (Func<IQuore> createQuore) {
+            this.CreateQuore = () => {
+                var c = createQuore ();
+                c.Log = this.Log;
+                return c;
+            };
+        }
+
+        protected Func<IQuore> CreateQuore { get; set; }
+
+        IQuore _quore;
+        public IQuore Quore => _quore ?? (_quore = CreateQuore());
+
+        TextWriter _log = null;
+
+        public virtual TextWriter Log {
+            get { return _log ?? (_log = new StringWriter ()); }
+            set { _log = value; }
+        }
+
+        public virtual void Dispose () {
+            _quore?.Dispose ();
+            _quore = null;
+        }
+
+    }
+
 }

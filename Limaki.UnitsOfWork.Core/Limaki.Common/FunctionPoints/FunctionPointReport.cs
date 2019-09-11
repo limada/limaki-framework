@@ -94,7 +94,11 @@ namespace Limaki.Common.FunctionPoints {
             var oldWriter = counter.Writer;
             counter.Writer = this.Writer;
             WriteLine(header);
-            foreach (var clazz in clazzes.Distinct().OrderBy(t => t.Name).OrderBy(t => !t.IsInterface)) {
+            foreach (var clazz in clazzes.Distinct()
+                    .OrderBy (t => t.Namespace)
+                    .ThenBy (t => t.Name)
+                    .ThenBy(t => !t.IsInterface)
+                    ) {
                 if (!Done.Contains(clazz)) {
                     var count = counter.Points;
                     Done.Add(clazz);

@@ -31,23 +31,31 @@ namespace Limaki.UnitsOfWork {
 
         public Paging Paging { get; set; }
 
+        public IEnumerable<LambdaExpression> GetExpressions () =>
+            this.GetType ().GetProperties ().Where (p => typeof (LambdaExpression).IsAssignableFrom (p.PropertyType))
+                .Select (p => p.GetValue (this, null) as LambdaExpression)
+                .Where (e => e != null);
+
         public string ToCSharpCode () {
             var type = this.GetType ();
             using (var writer = new StringWriter ()) {
-                foreach (var prop in type.GetProperties ().Where (p => typeof (Expression).IsAssignableFrom (p.PropertyType))) {
-                    var exp = prop.GetValue (this, null) as Expression;
-                    if (exp != null)
-                        writer.WriteLine (exp.ToCSharpCode ().Replace ("\r\n", " ").Replace ('\t', ' ').Replace ("  ", " "));
+                foreach (var exp in GetExpressions ()) {
+                    writer.WriteLine (exp.ToCSharpCode ().Replace ("\r\n", " ").Replace ('\t', ' ').Replace ("  ", " "));
                 }
                 return writer.ToString ();
             }
         }
 
         public virtual Expression<Func<T, bool>> SetExpression<T> (Expression<Func<T, bool>> exp) {
+            SetExpression ((LambdaExpression) exp);
+            return exp;
+        }
+
+        public virtual LambdaExpression SetExpression (LambdaExpression exp) {
             var expType = exp.GetType ();
-            var prop = GetType ().GetProperties ().Where (p => p.PropertyType.IsAssignableFrom(expType)).FirstOrDefault ();
+            var prop = GetType ().GetProperties ().FirstOrDefault (p => p.PropertyType.IsAssignableFrom (expType));
             if (prop == null)
-                throw new ArgumentException ($"{this.GetType()}: {exp} not supported");
+                throw new ArgumentException ($"{this.GetType ()}: {exp} not supported");
             prop.SetValue (this, exp);
             return exp;
         }

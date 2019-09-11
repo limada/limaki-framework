@@ -17,8 +17,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
+using Limaki.Data;
 
-namespace Limaki.Data {
+namespace Limaki.LinqData {
 
     /// <summary>
     /// Wraps another <see cref="IQuore"/> (the innerStore) with an <see cref="IQuoreMapper"/>
@@ -38,8 +39,7 @@ namespace Limaki.Data {
         public IQuore InnerQuore {
             get { return _innerQuore; }
             protected set {
-                var convertable = value as IConvertableQuore;
-                if (convertable != null)
+                if (value is IConvertableQuore convertable)
                     convertable.Convert = Mapper.Map;
                 _innerQuore = value;
             }
@@ -61,7 +61,7 @@ namespace Limaki.Data {
                 return result;
 
             var mappedType = Mapper.MapIn (typeof (T));
-            if (mappedType == null) {
+            if (mappedType == null || mappedType == typeof (T)) {
                 return InnerQuore.GetQuery<T> ();
             }
 
@@ -87,6 +87,21 @@ namespace Limaki.Data {
 
             var param = EntitiesOfType (Mapper.MapIn (entities), mappedType);
             method.Invoke (this, new object[] { param });
+        }
+
+        public virtual void Insert<T> (IEnumerable<T> entities) {
+
+            if (!entities.Any ())
+                return;
+
+            var mappedType = Mapper.MapIn (typeof (T));
+            if (mappedType == null) {
+                InnerQuore.Insert (Mapper.MapIn (entities));
+                return;
+            }
+
+            CudCall<T> (() => Insert<T> (entities), entities, mappedType);
+
         }
 
         public virtual void Upsert<T> (IEnumerable<T> entities) {

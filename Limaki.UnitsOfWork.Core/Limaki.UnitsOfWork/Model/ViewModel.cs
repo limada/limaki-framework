@@ -6,6 +6,10 @@ using Limaki.Common;
 
 namespace Limaki.UnitsOfWork {
 
+    public interface IJsonPagedInput  {
+        string PagingJson { get; set; }
+    }
+
     public interface IViewModel : ICheckable {
 
         Store Store { get; set; }
@@ -110,7 +114,7 @@ namespace Limaki.UnitsOfWork {
         public virtual bool EntityChanged (Action<T, int> setter, int oldValue, string value, string member = null)
         => EntityChanged (Entity, setter, oldValue, value, member);
 
-        public virtual bool EntityChanged (Action<T, long> setter, int oldValue, string value, string member = null)
+        public virtual bool EntityChanged (Action<T, long> setter, long oldValue, string value, string member = null)
         => EntityChanged (Entity, setter, oldValue, value, member);
 
         public virtual bool EntityChanged (Action<T, DateTime> setter, DateTime oldValue, string value, string member = null)
@@ -128,7 +132,7 @@ namespace Limaki.UnitsOfWork {
         public virtual bool EntityChanged<A> (A entity, Action<A, int> setter, int oldValue, string value, string member = null)
         => int.TryParse (Adjust<int> (value), out var dValue) && EntityChanged (entity, setter, oldValue, dValue, member);
 
-        public virtual bool EntityChanged<A> (A entity, Action<A,long> setter, int oldValue, string value, string member = null)
+        public virtual bool EntityChanged<A> (A entity, Action<A,long> setter, long oldValue, string value, string member = null)
         => long.TryParse (Adjust<long> (value), out var dValue) && EntityChanged (entity, setter, oldValue, dValue, member);
 
         public virtual bool EntityChanged<A> (A entity, Action<A, DateTime> setter, DateTime oldValue, string value, string member = null)

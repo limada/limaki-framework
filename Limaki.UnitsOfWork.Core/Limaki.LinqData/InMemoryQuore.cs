@@ -19,7 +19,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using Limaki.Data;
 
-namespace Limaki.Data {
+namespace Limaki.LinqData {
 
     public class InMemoryQuore : IQuore {
 
@@ -37,6 +37,11 @@ namespace Limaki.Data {
         public IQueryable<T> GetQuery<T> () {
             return GetList<T> ().AsQueryable<T> ();
 
+        }
+
+        public void Insert<T> (IEnumerable<T> entities) {
+            foreach (var e in entities)
+                GetList<T> ().Add (e);
         }
 
         public void Upsert<T> (IEnumerable<T> entities) {
