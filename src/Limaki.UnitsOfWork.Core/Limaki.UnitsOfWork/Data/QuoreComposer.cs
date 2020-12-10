@@ -17,15 +17,12 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
-using Limaki.Common.Linqish;
-using Limaki.Data;
-using Limaki.LinqData;
-using Limaki.UnitsOfWork.IdEntity.Data;
+using Limaki.Repository;
+using Limaki.UnitsOfWork.IdEntity.Repository;
 using Limaki.UnitsOfWork.IdEntity.Model;
 using Mono.Linq.Expressions;
 
-namespace Limaki.UnitsOfWork.Data {
+namespace Limaki.UnitsOfWork.Repository {
     
     public class QuoreComposer<TQuore, TMapper> : QuoreComposerBase<TQuore, TMapper>
         where TQuore : IEntityQuore
@@ -40,9 +37,9 @@ namespace Limaki.UnitsOfWork.Data {
             var entities = Expression.Variable (typeof (IEnumerable), "entities");
 
             var ofTypeGeneric = typeof (Enumerable).GetMethod (nameof (Enumerable.OfType));
-            var quoreCallGeneric = typeof (IQuore).GetMethods ().Where(m=>m.Name == method && m.GetParameters()
-                                                                          .FirstOrDefault(para=>para.ParameterType.GetGenericTypeDefinition ()==typeof(IEnumerable<>))!=null)
-                                                     .FirstOrDefault();
+            var quoreCallGeneric = typeof (IQuore).GetMethods()
+                .FirstOrDefault(m => m.Name == method && m.GetParameters()
+                    .FirstOrDefault(para=>para.ParameterType.GetGenericTypeDefinition ()==typeof(IEnumerable<>))!=null);
             foreach (var prop in QuoreProperties) {
                 var sinkType = prop.type;
                 var sourceType = Mapper.MapOut (prop.type);
@@ -93,9 +90,9 @@ namespace Limaki.UnitsOfWork.Data {
             var quore = Expression.Variable (typeof (IQuore), "quore");
             var id = Expression.Variable (typeof (Guid), "id");
             var method = nameof (IQuore.Remove);
-            var quoreCallGeneric = typeof (IQuore).GetMethods ().Where (m => m.Name == method && m.GetParameters ()
-                                                                        .FirstOrDefault (para => para.ParameterType.GetGenericTypeDefinition ().BaseType == typeof (LambdaExpression)) != null)
-                                                  .FirstOrDefault ();
+            var quoreCallGeneric = typeof (IQuore).GetMethods ()
+                .FirstOrDefault (m => m.Name == method && m.GetParameters ()
+                    .FirstOrDefault (para => para.ParameterType.GetGenericTypeDefinition ().BaseType == typeof (LambdaExpression)) != null);
             var entIdMeth = typeof (IIdEntity).GetMember (nameof (IIdEntity.Id))[0];
             foreach (var prop in QuoreProperties) {
                 var sinkType = prop.type;
