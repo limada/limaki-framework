@@ -262,7 +262,7 @@ namespace Limaki.UnitsOfWork.IdEntity.Data {
             if (count > 0) {
                 Log.Info ($"{nameof (RemoveEntities)}<{typeof (T).Name}> {count}");
                 var delDate = DateTime.Now;
-                var deleted = new HashSet<IDeletedEntity> ();
+                var deleted = new HashSet<DeletedEntity> ();
 
                 entities = entities.Where (e => CanChangeEntity?.Invoke (e.Id) ?? true);
                 var modelGuid = ModelGuid?.Invoke (typeof (T)) ?? Guid.Empty;
