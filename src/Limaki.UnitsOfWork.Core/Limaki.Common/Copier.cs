@@ -12,7 +12,6 @@
  * 
  */
 
-
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -27,47 +26,45 @@ namespace Limaki.Common {
     public class Copier {
 
         public static Func<PropertyInfo, bool> MemberFilter (CopierOptions options, Type attribute = null) {
-            attribute = attribute ?? typeof (DataMemberAttribute);
+            attribute ??= typeof(DataMemberAttribute);
             if (options == CopierOptions.DataMember) {
                 return p => p != null && p.IsDefined (attribute, true);
-
             }
+
             if (options == CopierOptions.ValueTypes) {
                 return p => {
                     if (p == null) return false;
                     var type = p.PropertyType;
                     return type.IsPublic && p.CanWrite &&
-                    (type.IsEnum || type.IsPrimitive || type.IsValueType || type == typeof (string));
+                           (type.IsEnum || type.IsPrimitive || type.IsValueType || type == typeof(string));
                 };
             }
+
             return p => false;
         }
 
         public static Action<E, E> CopyAction<E> (CopierOptions options) {
-            var delegateType = typeof (Action<E, E>);
-            var sourceType = typeof (E);
-            var sinkType = typeof (E);
+            var delegateType = typeof(Action<E, E>);
+            var sourceType = typeof(E);
+            var sinkType = typeof(E);
 
             var sourceExpr = Expression.Variable (sourceType, "source");
             var destExpr = Expression.Variable (sinkType, "sink");
 
             var memberFilter = MemberFilter (options);
 
-            var paras = new ParameterExpression [] { sourceExpr, destExpr };
+            var paras = new ParameterExpression[] {sourceExpr, destExpr};
             var blockExpressions = new List<Expression> ();
             try {
                 foreach (var sourceInfo in sourceType.GetProperties (BindingFlags.Public | BindingFlags.Instance).Where (memberFilter)) {
-
                     var sourceMember = Expression.Property (sourceExpr, sourceInfo);
                     var destInfo = sinkType.GetProperty (sourceInfo.Name, sourceInfo.PropertyType);
                     var destMember = Expression.Property (destExpr, destInfo);
                     blockExpressions.Add (Expression.Assign (destMember, sourceMember));
-
                 }
 
                 var copyExpression = Expression.Lambda (delegateType, Expression.Block (blockExpressions), paras);
-                return (Action<E, E>)copyExpression.Compile ();
-
+                return (Action<E, E>) copyExpression.Compile ();
             } catch (Exception ex) {
                 throw ex;
             }
@@ -79,8 +76,10 @@ namespace Limaki.Common {
 
         public CopierOptions Option { get; protected set; }
 
+        public Func<PropertyInfo, bool> CustomMemberFilter { get; }
+
         public Copier () {
-            this.Attribute = typeof (DataMemberAttribute);
+            this.Attribute = typeof(DataMemberAttribute);
             this.Option = CopierOptions.DataMember;
         }
 
@@ -89,77 +88,47 @@ namespace Limaki.Common {
             this.Option = options;
         }
 
+        public Copier (Func<PropertyInfo, bool> customMemberFilter) {
+            CustomMemberFilter = customMemberFilter;
+        }
+
         public Type Attribute { get; protected set; }
 
+        protected virtual Func<PropertyInfo, bool> MemberFilter () => CustomMemberFilter ?? MemberFilter (Option, Attribute);
 
-        protected virtual Func<PropertyInfo, bool> MemberFilter () => MemberFilter (Option, Attribute);
+        protected static readonly Type _thisGenericParameter = typeof(T);
 
-        protected static IEqualityComparer comparer = EqualityComparer<object>.Default;
-        public bool AreEqual (T source, T target) {
+        
+        protected static readonly IDictionary<int, Delegate> CopyActionCache = new Dictionary<int, Delegate> ();
 
-            if (source == null && target == null)
-                return true;
-
-            if (source == null || target == null)
-                return false;
-
-            bool result = true;
-
-            var sourceType = source.GetType ();
-            var desttype = target.GetType ();
-            var memberFilter = MemberFilter ();
-            cache.AddType (desttype, memberFilter);
-            var dataMembers = cache.Members (sourceType, memberFilter);
-
-            foreach (var info in dataMembers) {
-                var sourceValue = info.GetValue (source, null);
-                if (cache.ValidMember (desttype, info.PropertyType, info.Name)) {
-                    var destValue = cache.GetValue (desttype, info.PropertyType, info.Name, target);
-                    result = result && comparer.Equals (sourceValue, destValue);
-                }
-                if (!result)
-                    break;
-            }
-
-            return result;
-        }
-
-        protected static readonly Type _thisGenericParameter = typeof (T);
-        protected static readonly MemberReflectionCache _dataMemberCache = new MemberReflectionCache ();
-        protected static readonly MemberReflectionCache _valueTypeCache = new MemberReflectionCache ();
-        protected MemberReflectionCache cache {
-            get {
-                if (this.Option == CopierOptions.DataMember)
-                    return _dataMemberCache;
-                return _valueTypeCache;
-            }
-        }
-               
-        protected static readonly IDictionary<int, Delegate> copyActionCache = new Dictionary<int, Delegate> ();
+        protected static readonly IDictionary<int, MemberReflectionCache> MemberReflectionCache = new Dictionary<int, MemberReflectionCache> ();
+        int Key (Type sourceType, Type sinkType) => KeyMaker.GetHashCode (typeof(T), sourceType, sinkType, CustomMemberFilter?.GetHashCode () ?? (int) Option);
 
         public T Copy (T source, T sink) {
             if (source == null || sink == null) {
                 return sink;
             }
-            var clazz = typeof (T);
+
             var sourceType = source.GetType ();
             var sinkType = sink.GetType ();
 
-            var key = KeyMaker.GetHashCode (clazz, sourceType, sinkType);
-            //var delegateType = typeof(Action<,>).MakeGenericType(sourceType, sinkType);
+            var key = Key (sourceType, sinkType);
 
-            Delegate copyAction = null;
-
-            if (!copyActionCache.TryGetValue (key, out copyAction)) {
-                var delegateType = typeof (Action<,>).MakeGenericType (sourceType, sinkType);
+            if (!CopyActionCache.TryGetValue (key, out var copyAction)) {
+                var delegateType = typeof(Action<,>).MakeGenericType (sourceType, sinkType);
                 var sourceExpr = Expression.Variable (sourceType, "source");
                 var destExpr = Expression.Variable (sinkType, "sink");
 
                 var memberFilter = MemberFilter ();
-                cache.AddType (sinkType, memberFilter);
+                if (!MemberReflectionCache.TryGetValue (key, out var cache)) {
+                    cache = new MemberReflectionCache ();
+                    MemberReflectionCache.Add (key, cache);
+                    cache.AddType (sinkType, memberFilter);
+                }
+
                 var sourceMembers = cache.Members (sourceType, memberFilter);
 
-                var paras = new ParameterExpression [] { sourceExpr, destExpr };
+                var paras = new ParameterExpression[] {sourceExpr, destExpr};
                 var blockExpressions = new List<Expression> ();
                 try {
                     foreach (var sourceInfo in sourceMembers) {
@@ -173,13 +142,14 @@ namespace Limaki.Common {
 
                     var copyExpression = Expression.Lambda (delegateType, Expression.Block (blockExpressions), paras);
                     copyAction = copyExpression.Compile ();
-
                 } catch (Exception ex) {
                     throw ex;
                 }
-                copyActionCache.Add (key, copyAction);
+
+                CopyActionCache.Add (key, copyAction);
             }
-            copyAction.DynamicInvoke (new object [] { source, sink });
+
+            copyAction.DynamicInvoke (new object[] {source, sink});
             // this is slower:
             //delegateType.InvokeMember("Invoke",
             //BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.InvokeMethod,
@@ -188,35 +158,11 @@ namespace Limaki.Common {
             return sink;
         }
 
-        public IEnumerable<PropertyInfo> Difference (T source, T target) {
-            if (source == null || target == null)
-                yield break;
-
-            var sourceType = typeof (T);
-            var desttype = typeof (T);
-            var memberFilter = MemberFilter ();
-            cache.AddType (desttype, memberFilter);
-            var dataMembers = cache.Members (sourceType, memberFilter);
-
-            foreach (var info in dataMembers) {
-                var sourceValue = info.GetValue (source, null);
-                if (cache.ValidMember (desttype, info.PropertyType, info.Name)) {
-                    var destValue = cache.GetValue (desttype, info.PropertyType, info.Name, target);
-                    if (!comparer.Equals (sourceValue, destValue))
-                        yield return info;
-                }
-
-            }
-
-        }
-
     }
-
 
     public enum CopierOptions {
         DataMember,
         ValueTypes,
     }
-
 
 }

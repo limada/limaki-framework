@@ -16,6 +16,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -82,6 +83,13 @@ namespace Limaki.UnitsOfWork.Hash.Usecases {
             if (data is float fl) {
                 return Hash (BitConverter.GetBytes (fl));
             }
+            if (data is Stream stream) {
+                var pos = stream.Position;
+                stream.Position = 0;
+                var h =  Algo.ComputeHash(stream);
+                stream.Position = pos;
+                return h;
+            }
             var tos = data?.ToString ();
             return tos != null ? Hash (tos) : new byte [0];
         }
@@ -124,9 +132,25 @@ namespace Limaki.UnitsOfWork.Hash.Usecases {
             return p => false;
         }
 
+        //TOOD: refactor to use global cache; see: copier;
+        protected static readonly IDictionary<int, MemberReflectionCache> MemberReflectionCache = new Dictionary<int, MemberReflectionCache> ();
+        int Key (Type sourceType) => KeyMaker.GetHashCode (typeof(T), sourceType, CustomMemberFilter?.GetHashCode () ?? (int) Option);
+
+        MemberReflectionCache Cache (Type sourceType) {
+            var key = Key (sourceType);
+            if (!MemberReflectionCache.TryGetValue (key, out var cache)) {
+                cache = new MemberReflectionCache ();
+                MemberReflectionCache.Add (key, cache);
+                cache.AddType (typeof(T), MemberFilter ());
+                
+            }
+
+            return cache;
+        }
+        
         protected readonly MemberReflectionCache _dataMemberCache = new MemberReflectionCache ();
         protected readonly MemberReflectionCache _valueTypeCache = new MemberReflectionCache ();
-        protected MemberReflectionCache Cache {
+        protected MemberReflectionCache cache {
             get {
                 if (this.Option == CopierOptions.DataMember)
                     return _dataMemberCache;
@@ -145,7 +169,7 @@ namespace Limaki.UnitsOfWork.Hash.Usecases {
             var clazz = typeof (T);
             var sourceType = source.GetType ();
 
-            var sourceMembers = Cache.Members (sourceType, MemberFilter ());
+            var sourceMembers = cache.Members (sourceType, MemberFilter ());
             Func<T, string> result = d => {
                 return HashString (sourceMembers.Select (p => Hash (p.GetValue (source))).ToArray ());
             };
@@ -154,17 +178,16 @@ namespace Limaki.UnitsOfWork.Hash.Usecases {
         }
 
         protected Func<T, string> GetDelegate (T source) {
-
-            var clazz = typeof (T);
+            
             var sourceType = source.GetType ();
 
-            var key = KeyMaker.GetHashCode (clazz, sourceType);
+            var key = Key (sourceType);
 
             if (!copyActionCache.TryGetValue (key, out Delegate hashAction)) {
                 var delegateType = typeof (Func<T, string>);
                 var sourceExpr = Expression.Variable (sourceType, "source");
 
-                var sourceMembers = Cache.Members (sourceType, MemberFilter ());
+                var sourceMembers = cache.Members (sourceType, MemberFilter ());
 
                 var paras = new ParameterExpression [] { sourceExpr };
                 var hashArguments = new List<Expression> ();
@@ -203,7 +226,8 @@ namespace Limaki.UnitsOfWork.Hash.Usecases {
         /// <returns>The hash.</returns>
         public string TypeHash () {
 
-             var bytes = Cache.Members (typeof (T), MemberFilter ()).OrderBy (s => s.Name).SelectMany (m => new[] { Hash (m.Name), Hash (m.PropertyType) })
+             var bytes = cache.Members (typeof (T), MemberFilter ())
+                 .OrderBy (s => s.Name).SelectMany (m => new[] { Hash (m.Name), Hash (m.PropertyType) })
             .ToArray();
             return HashString (bytes);
 
@@ -215,13 +239,14 @@ namespace Limaki.UnitsOfWork.Hash.Usecases {
         /// <returns>The hash.</returns>
         public string TypePropertyIndexHash () {
             var i = 1;
-            var bytes = Cache.Members (typeof (T), MemberFilter ()).OrderBy (s => s.Name).SelectMany (m => new [] { Hash (i++), Hash (m.PropertyType) })
+            var bytes = cache.Members (typeof (T), MemberFilter ())
+                .OrderBy (s => s.Name).SelectMany (m => new [] { Hash (i++), Hash (m.PropertyType) })
             .ToArray ();
             return HashString (bytes);
         }
 
         public string Hash (T source) {
-            if (source == default) {
+            if (source == null) {
                 return string.Empty;
             }
 
@@ -236,13 +261,13 @@ namespace Limaki.UnitsOfWork.Hash.Usecases {
             if (source == null || target == null)
                 yield break;
 
-            var sourceType = typeof (T);
             var desttype = typeof (T);
-           
-            foreach (var info in Cache.Members (typeof (T), MemberFilter ())) {
+
+            cache.AddType(desttype, MemberFilter());
+            foreach (var info in cache.Members (typeof (T), MemberFilter ())) {
                 var sourceValue = info.GetValue (source, null);
-                if (Cache.ValidMember (desttype, info.PropertyType, info.Name)) {
-                    var destValue = Cache.GetValue (desttype, info.PropertyType, info.Name, target);
+                if (cache.ValidMember (desttype, info.PropertyType, info.Name)) {
+                    var destValue = cache.GetValue (desttype, info.PropertyType, info.Name, target);
                     if (!comparer.Equals (sourceValue, destValue))
                         yield return info;
                 }
