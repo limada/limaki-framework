@@ -23,70 +23,72 @@ namespace Limaki.UnitsOfWork {
 
     [DataContract]
     public class ChangeSetContainer : IDisposable {
-        
-        public IEnumerable<Type> KnownTypes() {
-            var result = new List<Type>();
-            var genType = typeof(ChangeSet<>).GetGenericTypeDefinition();
-            foreach (var prop in this.GetType().GetProperties()) {
+
+        public IEnumerable<Type> KnownTypes () {
+            var result = new List<Type> ();
+            var genType = typeof(ChangeSet<>).GetGenericTypeDefinition ();
+            foreach (var prop in this.GetType ().GetProperties ()) {
                 if (prop.PropertyType.IsGenericType) {
-                    var gettype = prop.PropertyType.GetGenericTypeDefinition();
-                    if (gettype.Equals(genType)) {
-                        result.Add(prop.PropertyType);
+                    var gettype = prop.PropertyType.GetGenericTypeDefinition ();
+                    if (gettype.Equals (genType)) {
+                        result.Add (prop.PropertyType);
                     }
                 }
             }
+
             return result;
         }
 
-        public virtual ChangeSet<T> ChangeSet<T>() {
+        public virtual ChangeSet<T> ChangeSet<T> () {
             var type = typeof(T);
-            var changeSet = this.GetType().GetProperties()
-                .Where(p => p.PropertyType == typeof(ChangeSet<T>))
-                .FirstOrDefault();
+            var changeSet = this.GetType ().GetProperties ()
+                .FirstOrDefault (p => p.PropertyType == typeof(ChangeSet<T>));
             if (changeSet != null) {
-                var result = changeSet.GetValue(this, null) as ChangeSet<T>;
+                var result = changeSet.GetValue (this, null) as ChangeSet<T>;
                 if (result == null) {
-                    result = new ChangeSet<T>();
-                    changeSet.SetValue(this, result, null);
+                    result = new ChangeSet<T> ();
+                    changeSet.SetValue (this, result, null);
                 }
+
                 return result;
             }
+
             return null;
         }
 
-        public string ChangeSetInfo<T>(object value) {
-            var changeSet = (ChangeSet<T>)value;
+        public string ChangeSetInfo<T> (object value) {
+            var changeSet = (ChangeSet<T>) value;
             return $"{changeSet.Created.Count} created \t {changeSet.Updated.Count} updated \t {changeSet.Removed.Count} removed";
         }
 
-        public virtual IEnumerable<PropertyInfo> ChangeSetProperties() {
-            var changeSets = this.GetType().GetProperties()
-               .Where(p =>
-                   p.PropertyType.IsGenericType &&
-                   p.PropertyType.GetGenericTypeDefinition() == typeof(ChangeSet<>));
+        public virtual IEnumerable<PropertyInfo> ChangeSetProperties () {
+            var changeSets = this.GetType ().GetProperties ()
+                .Where (p =>
+                    p.PropertyType.IsGenericType &&
+                    p.PropertyType.GetGenericTypeDefinition () == typeof(ChangeSet<>));
 
             foreach (var changeSetProperty in changeSets) {
                 if (changeSetProperty != null) {
-
                     yield return changeSetProperty;
                 }
             }
         }
 
-        public virtual string Info() {
-            var writer = new StringWriter();
-            writer.WriteLine(this.GetType().Name);
-            foreach (var changeSetProperty in ChangeSetProperties()) {
-                var changeSet = changeSetProperty.GetValue(this, null);
+        public virtual string Info () {
+            var writer = new StringWriter ();
+            writer.WriteLine (this.GetType ().Name);
+            foreach (var changeSetProperty in ChangeSetProperties ()) {
+                var changeSet = changeSetProperty.GetValue (this, null);
                 if (changeSet != null) {
-                    var infomethod = this.GetType().GetMethod("ChangeSetInfo");
+                    var infomethod = this.GetType ().GetMethod ("ChangeSetInfo");
                     var method =
-                        infomethod.MakeGenericMethod(changeSetProperty.PropertyType.GetGenericArguments().First());
-                    writer.Write("\t" + changeSetProperty.Name + ":\t ");
-                    writer.WriteLine(method.Invoke(this, new object[] { changeSet }));
+                        infomethod.MakeGenericMethod (changeSetProperty.PropertyType.GetGenericArguments ().First ());
+                    writer.Write ("\t" + changeSetProperty.Name + ":\t ");
+                    writer.WriteLine (method.Invoke (this, new object[] {changeSet}));
                 }
             }
-            return writer.ToString();
+
+            return writer.ToString ();
         }
 
         public bool HasData {
@@ -96,12 +98,13 @@ namespace Limaki.UnitsOfWork {
                         return true;
                     }
                 }
+
                 return false;
             }
         }
 
-        public virtual void Clear() {
-            foreach (var changeSetProperty in ChangeSetProperties()) {
+        public virtual void Clear () {
+            foreach (var changeSetProperty in ChangeSetProperties ()) {
                 if (changeSetProperty.GetValue (this, null) is UnitsOfWork.ChangeSet changeSet) {
                     changeSet.Clear ();
                 }
@@ -122,8 +125,8 @@ namespace Limaki.UnitsOfWork {
 
         public void Dispose () {
             Dispose (true);
-
         }
 
     }
+
 }
