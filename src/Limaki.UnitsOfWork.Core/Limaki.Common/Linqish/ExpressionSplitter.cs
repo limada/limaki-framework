@@ -117,8 +117,8 @@ namespace Limaki.Common.Linqish {
 
         public IEnumerable<Expression> Split (Expression<Func<E, M>> lambda, HashSet<MemberInfo> valid) {
             bool CheckIfValid (Expression expression) =>
-                expression is MemberExpression {Expression: ParameterExpression p} me 
-                && p.Type == typeof(E) 
+                expression is MemberExpression {Expression: ParameterExpression p} me
+                && p.Type == typeof(E)
                 && valid.Contains (me.Member);
 
             bool HasOnlyValidProperties (Expression expression) => GetProperties (expression).All (CheckIfValid);
@@ -129,13 +129,29 @@ namespace Limaki.Common.Linqish {
 
             var visitor = new ExpressionVisitVisitor ();
             var candidates = new Queue<Expression> ();
+            var candidatesAppend = new Queue<(BinaryExpression binary, Expression expression, ExpressionType nodeType)> ();
             visitor.VisitConstantFunc = v => {
                 return v;
             };
+
             visitor.VisitBinaryFunc = v => {
-                if (v.Type == typeof(M) && HasOnlyValidProperties (v)) {
-                    candidates.Enqueue (v);
-                    return v;
+                if (v.Type == typeof(M)) {
+                    if (HasOnlyValidProperties (v)) {
+                        candidates.Enqueue (v);
+                        return v;
+                    }
+
+                    if (v == lambda.Body) {
+                        ;
+                    }
+
+                    if (!GetProperties (v.Left).Any()) {
+                        candidatesAppend.Enqueue ((v, v.Left, v.NodeType));
+                    }
+
+                    if (!GetProperties (v.Right).Any()) {
+                        candidatesAppend.Enqueue ((v,v.Right, v.NodeType));
+                    }
                 }
 
                 visitor.BaseVisit (v.Left);
@@ -153,6 +169,7 @@ namespace Limaki.Common.Linqish {
                 visitor.BaseVisit (v.Object);
                 return v;
             };
+
             visitor.VisitLambdaFunc = v => {
                 if (HasOnlyValidProperties (v) && v is Expression<Func<E, M>>) {
                     candidates.Enqueue (v);
@@ -163,6 +180,7 @@ namespace Limaki.Common.Linqish {
                 return v;
             };
             visitor.Visit (lambda);
+            // TODO: merge candidatesAppend
             return candidates;
         }
 
