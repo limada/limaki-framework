@@ -117,14 +117,21 @@ namespace Limaki.Common.Linqish {
 
         public IEnumerable<Expression> Split (Expression<Func<E, M>> lambda, HashSet<MemberInfo> valid) {
             bool CheckIfValid (Expression expression) =>
-                expression is MemberExpression me //&& me.Member.MemberType == System.Reflection.MemberTypes.Property
-                && me.Expression is ParameterExpression p && p.Type == typeof(E)
+                expression is MemberExpression {Expression: ParameterExpression p} me 
+                && p.Type == typeof(E) 
                 && valid.Contains (me.Member);
+
+            bool HasOnlyValidProperties (Expression expression) => GetProperties (expression).All (CheckIfValid);
+
+            if (HasOnlyValidProperties (lambda)) {
+                return new[] {lambda};
+            }
 
             var visitor = new ExpressionVisitVisitor ();
             var candidates = new Queue<Expression> ();
-
-            bool HasOnlyValidProperties (Expression expression) => GetProperties (expression).All (p => CheckIfValid (p));
+            visitor.VisitConstantFunc = v => {
+                return v;
+            };
             visitor.VisitBinaryFunc = v => {
                 if (v.Type == typeof(M) && HasOnlyValidProperties (v)) {
                     candidates.Enqueue (v);
@@ -147,7 +154,7 @@ namespace Limaki.Common.Linqish {
                 return v;
             };
             visitor.VisitLambdaFunc = v => {
-                if (HasOnlyValidProperties (v)) {
+                if (HasOnlyValidProperties (v) && v is Expression<Func<E, M>>) {
                     candidates.Enqueue (v);
                     return v;
                 }
