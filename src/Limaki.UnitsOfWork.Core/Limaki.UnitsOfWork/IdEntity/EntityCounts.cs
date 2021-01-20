@@ -22,22 +22,20 @@ namespace Limaki.UnitsOfWork.IdEntity {
 
     public abstract class EntityCounts {
 
-		public abstract Guid GetIndex (string name);
+        public abstract Guid GetIndex (Type type);
 
         /// <summary>
         /// index = Relations
         /// Count = count of items
         /// </summary>
         [DataMember]
-		public IDictionary<Guid, long> Counts { get; set; } = new Dictionary<Guid, long> ();
+        public IDictionary<Guid, long> Counts { get; set; } = new Dictionary<Guid, long> ();
 
-        public long Count<T> () {
-
-            var name = new TypeInfo { Type = typeof (T) }.ImplName;
-
-            if (Counts.TryGetValue (GetIndex (name), out var count)) {
+        public virtual long Count<T> () {
+            if (Counts.TryGetValue (GetIndex (typeof(T)), out var count)) {
                 return count;
             }
+
             return -1;
         }
 
@@ -47,4 +45,5 @@ namespace Limaki.UnitsOfWork.IdEntity {
 
         public bool Any () => Count () > 0;
     }
+
 }
