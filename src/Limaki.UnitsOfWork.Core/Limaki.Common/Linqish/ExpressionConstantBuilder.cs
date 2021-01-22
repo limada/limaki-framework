@@ -35,8 +35,7 @@ namespace Limaki.Common.Linqish {
         }
 
         public override Expression Visit (Expression node) {
-            var lam = node as LambdaExpression;
-            if (lam != null)
+            if (node is LambdaExpression lam)
                 this.sourceParam = lam.Parameters;
             return base.Visit (node);
         }
