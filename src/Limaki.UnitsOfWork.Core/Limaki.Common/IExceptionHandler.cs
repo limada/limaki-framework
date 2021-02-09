@@ -13,6 +13,7 @@
  */
 
 using System;
+using Limaki.Common.Reflections;
 
 namespace Limaki.Common {
 
@@ -34,4 +35,37 @@ namespace Limaki.Common {
             throw e;
         }
     }
+
+    public class LoggingExceptionHandler : IExceptionHandler {
+
+        static ILog _log = null;
+
+        public virtual ILog Log {
+            get {
+                if (_log == null) {
+
+                    try {
+                        _log = Registry.Pool.TryGetCreate<Logger> ().Log (this.GetType ());
+                    } finally {
+                        _log = new Logger ().Log (GetType ());
+                    }
+                }
+
+                return _log;
+            }
+        }
+
+        public static string ExceptionMessage (Exception ex)
+            => $"Error<{ex?.TargetSite.DeclaringType.FriendlyClassName ()}>\t{ex?.TargetSite.Name}\t{ex?.Message} | {DateTime.Now}\n{ex?.StackTrace}\n";
+
+        public virtual void Catch (Exception e) {
+            Log.Raw (ExceptionMessage (e));
+        }
+
+        public virtual void Catch (Exception e, MessageType messageType) {
+            Log.Raw (ExceptionMessage (e));
+        }
+
+    }
+
 }
