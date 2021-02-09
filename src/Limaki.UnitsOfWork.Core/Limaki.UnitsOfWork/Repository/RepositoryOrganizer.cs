@@ -113,7 +113,7 @@ namespace Limaki.UnitsOfWork.Repository
 
         public IFactory DtoFactory { get; set; }
 
-        public void Catch(Exception ex) {
+        public virtual void Catch(Exception ex) {
             Log.Error($"", ex);
             throw ex;
         }
