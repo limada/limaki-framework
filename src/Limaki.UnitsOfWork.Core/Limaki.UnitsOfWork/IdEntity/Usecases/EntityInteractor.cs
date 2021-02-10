@@ -102,6 +102,11 @@ namespace Limaki.UnitsOfWork.IdEntity.Usecases {
 
 		public virtual bool IsEmpty (E entity) => false;
 
+        public virtual IEnumerable<(bool valid, FormattableString message)> IsValid<T> (T entity) {
+            
+            yield break;
+        }
+
     }
 
     public class EntityMember<E, M>  {
