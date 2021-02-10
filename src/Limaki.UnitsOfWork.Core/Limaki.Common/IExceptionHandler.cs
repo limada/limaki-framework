@@ -56,7 +56,7 @@ namespace Limaki.Common {
         }
 
         public static string ExceptionMessage (Exception ex)
-            => $"Error<{ex?.TargetSite.DeclaringType.FriendlyClassName ()}>\t{ex?.TargetSite.Name}\t{ex?.Message} | {DateTime.Now}\n{ex?.StackTrace}\n";
+            => ex.ExceptionMessage ($"Error<{ex?.TargetSite.DeclaringType.FriendlyClassName ()}>\t{ex?.TargetSite.Name}");
 
         public virtual void Catch (Exception e) {
             Log.Raw (ExceptionMessage (e));
