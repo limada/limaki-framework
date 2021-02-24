@@ -6,7 +6,7 @@
  * published by the Free Software Foundation.
  * 
  * Author: Lytico
- * Copyright (C) 2006-2011 Lytico
+ * Copyright (C) 2006-2019 Lytico
  *
  * http://www.limada.org
  * 
@@ -20,6 +20,7 @@ using System.Linq;
 using Limaki.Common.Text;
 using System.Runtime.CompilerServices;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace Limaki.Common.Reflections {
 
@@ -34,9 +35,9 @@ namespace Limaki.Common.Reflections {
                 type == typeof (decimal) ||
                 type == typeof (DateTime);
 
-        public static bool IsSimpleOrNullable (this Type type) => Nullable.GetUnderlyingType (type).IsSimple () || type.IsSimple ();
+        public static bool IsSimpleOrNullable (this Type type) => type!=null &&(Nullable.GetUnderlyingType (type).IsSimple () || type.IsSimple ());
 
-        public static Set<Tuple<Type, Type>> _implements = new Set<Tuple<Type, Type>> ();
+        static Set<Tuple<Type, Type>> _implements = new Set<Tuple<Type, Type>> ();
 
         public static bool Implements (Type clazz, Type interfaze) {
             if (clazz.IsClass) {
@@ -145,7 +146,7 @@ namespace Limaki.Common.Reflections {
         /// <typeparam name="A">The requested attribute type</typeparam>
         /// <param name="t">The class supposed to provide that attribute</param>
         /// <returns>An attribute of type A or null if none</returns>
-        public static A GetAttribute<A> (this Type t) where A : Attribute =>
+        public static A GetAttribute<A> (this Type t) where A : Attribute => 
             GetSingleAttribute<A> (t.GetCustomAttributes (typeof (A), true));
 
         /// <summary>
@@ -177,10 +178,7 @@ namespace Limaki.Common.Reflections {
                         queue.Enqueue (subInterface);
                     }
 
-                    var typeProperties = subType.GetProperties (
-                        BindingFlags.FlattenHierarchy
-                        | BindingFlags.Public
-                        | BindingFlags.Instance);
+                    var typeProperties = subType.GetProperties (flags); //BindingFlags.FlattenHierarchy| BindingFlags.Public| BindingFlags.Instance);
 
                     var newPropertyInfos = typeProperties
                         .Where (x => !propertyInfos.Contains (x));
@@ -194,57 +192,22 @@ namespace Limaki.Common.Reflections {
             return type.GetProperties (flags);
         }
 
-        public static IEnumerable<System.Reflection.MemberInfo> UsageInfos (
-            this Type type, BindingFlags flags = BindingFlags.FlattenHierarchy | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static)
-            =>
-            type.GetPublicProperties (flags).Cast<System.Reflection.MemberInfo> ()
-            .Union (type.GetFields (flags).Cast<System.Reflection.MemberInfo> ())
-            .Union (type.GetMethods (flags).Cast<System.Reflection.MemberInfo> ())
-            .Distinct ();
+        public static bool IsExtensionMethod (this MethodBase methodBase) => methodBase.GetCustomAttribute<ExtensionAttribute> () != null;
 
-        public static IEnumerable<Type> UsageTypes (this System.Reflection.MemberInfo info, bool withGenericUsage = false, bool withArrayUsage = false) {
-
-            IEnumerable<Type> GetTypes (Type t) {
-                yield return t;
-
-                if (withGenericUsage && t.IsGenericType)
-                    yield return t.GetGenericTypeDefinition ();
-
-                if (withArrayUsage && t.IsArray)
-                    yield return t.GetElementType ();
+        public static Type EnumerableElement (this Type t) {
+            if (t.IsSimpleOrNullable ())
+                return default;
+            if (t.IsArray)
+                return t.GetElementType ();
+            if (t.IsGenericType && typeof (System.Collections.IEnumerable).IsAssignableFrom (t)) {
+                return t.GenericTypeArguments.FirstOrDefault ();
             }
-
-            if (info is PropertyInfo p) {
-                return GetTypes (p.PropertyType);
-            }
-            if (info is FieldInfo f) {
-                return GetTypes (f.FieldType);
-            }
-            if (info is MethodInfo m) {
-                return m.GetParameters ().SelectMany (pr => GetTypes (pr.ParameterType))
-                .Union (GetTypes (m.ReturnType));
-            }
-            return Enumerable.Empty<Type> ();
+            return default;
         }
 
-        public static IEnumerable<Type> UsageTypes (
-            this Type type, BindingFlags flags = BindingFlags.FlattenHierarchy | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static)
-            =>
-            type.GetPublicProperties (flags).Select (p => p.PropertyType)
-            .Union (type.GetFields (flags).Select (f => f.FieldType))
-            .Union (type.GetMethods (flags).SelectMany (m => m.GetParameters ().Select (p => p.ParameterType).Union (new[] { m.ReturnType })))
-            .Distinct ();
-
-        public static IEnumerable<Type> WithGenericUsageTypes (this IEnumerable<Type> usageTypes)
-            => usageTypes
-                .Union (usageTypes.Where (t => t.IsGenericType).Select (t => t.GetGenericTypeDefinition ()))
-                .Distinct ();
-
-        public static IEnumerable<Type> WithArrayUsageTypes (this IEnumerable<Type> usageTypes)
-            => usageTypes
-                .Union (usageTypes.Where (t => t.IsArray)
-                .Select (t => t.GetElementType ()))
-                .Distinct ();
+        public static bool IsRelation (this MemberInfo it) => it.Relation () != null;
+        
+        public static RelationAttribute Relation (this MemberInfo it) => it.GetCustomAttribute<RelationAttribute> ();
 
     }
 
