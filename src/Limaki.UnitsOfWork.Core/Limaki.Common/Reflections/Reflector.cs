@@ -27,33 +27,38 @@ namespace Limaki.Common.Reflections {
     public static class Reflector {
 
         public static bool IsStorable (Type type) {
-            return !(type.IsPrimitive || type == typeof (string));
+            return !(type.IsPrimitive || type == typeof(string));
         }
 
         public static bool IsSimple (this Type type) => type != null && type.IsPrimitive ||
-                type == typeof (string) ||
-                type == typeof (decimal) ||
-                type == typeof (DateTime);
+                                                        type == typeof(string) ||
+                                                        type == typeof(decimal) ||
+                                                        type == typeof(DateTime);
 
-        public static bool IsSimpleOrNullable (this Type type) => type!=null &&(Nullable.GetUnderlyingType (type).IsSimple () || type.IsSimple ());
+        public static bool IsSimpleOrNullable (this Type type) => type != null && (Nullable.GetUnderlyingType (type).IsSimple () || type.IsSimple ());
 
         static Set<Tuple<Type, Type>> _implements = new Set<Tuple<Type, Type>> ();
 
         public static bool Implements (Type clazz, Type interfaze) {
             if (clazz.IsClass) {
                 var key = Tuple.Create (clazz, interfaze);
+
                 if (_implements.Contains (key))
                     return true;
+
                 var result = (interfaze.IsAssignableFrom (clazz));
+
                 if (!result && interfaze.IsInterface) {
                     foreach (Type t in clazz.GetInterfaces ()) {
                         if (t == interfaze) {
                             result = true;
                             _implements.Add (key);
+
                             break;
                         }
                     }
                 }
+
                 return result;
             } else {
                 return false;
@@ -67,54 +72,57 @@ namespace Limaki.Common.Reflections {
         /// <param name="type">Type.</param>
         public static string FriendlyIntegralTypeName (this Type type) {
             switch (type) {
-            case Type t when t == typeof (Int16):
-                return "short";
-            case Type t when t == typeof (Int32):
-                return "int";
-            case Type t when t == typeof (Int64):
-                return "long";
-            case Type t when t == typeof (UInt16):
-                return "ushort";
-            case Type t when t == typeof (UInt32):
-                return "uint";
-            case Type t when t == typeof (UInt64):
-                return "ulong";
-            case Type t when t == typeof (Single):
-                return "float";
-            case Type t when t == typeof (Boolean):
-                return "bool";
-            case Type t when
-                        t == typeof (Object) ||
-                        t == typeof (String) ||
-                        t == typeof (Byte) ||
-                        t == typeof (Char) ||
-                        t == typeof (Decimal) ||
-                        t == typeof (SByte) ||
-                        t == typeof (Double) ||
-                        t == typeof (void)
-                        :
-                return t.Name.ToLower ();
-            default:
-                return type.Name;
+                case Type t when t == typeof(Int16):
+                    return "short";
+                case Type t when t == typeof(Int32):
+                    return "int";
+                case Type t when t == typeof(Int64):
+                    return "long";
+                case Type t when t == typeof(UInt16):
+                    return "ushort";
+                case Type t when t == typeof(UInt32):
+                    return "uint";
+                case Type t when t == typeof(UInt64):
+                    return "ulong";
+                case Type t when t == typeof(Single):
+                    return "float";
+                case Type t when t == typeof(Boolean):
+                    return "bool";
+                case Type t when
+                    t == typeof(Object) ||
+                    t == typeof(String) ||
+                    t == typeof(Byte) ||
+                    t == typeof(Char) ||
+                    t == typeof(Decimal) ||
+                    t == typeof(SByte) ||
+                    t == typeof(Double) ||
+                    t == typeof(void)
+                    :
+                    return t.Name.ToLower ();
+                default:
+                    return type.Name;
             }
         }
 
         public static bool IsTuple (this Type type) =>
             type.GetInterfaces ().Any (i => i.Name == "ITuple"
-            && i.Namespace == typeof (IsLong).Namespace);
+                                            && i.Namespace == typeof(IsLong).Namespace);
 
         public static bool IsNullable (this Type type) => Nullable.GetUnderlyingType (type) != null;
 
         public static string FriendlyClassName (this Type type) {
             var result = new StringBuilder ();
+
             if (type.IsNested && !type.IsGenericParameter) {
                 result.Append (type.FullName.Replace (type.DeclaringType.FullName + "+", FriendlyClassName (type.DeclaringType) + "."));
             } else {
                 result.Append (FriendlyIntegralTypeName (type));
             }
+
             if ((type.IsGenericType || type.ContainsGenericParameters) && !type.IsGenericParameter) {
 
                 var genPos = result.IndexOf ("`");
+
                 if (genPos > 0)
                     result = result.Remove (genPos, result.Length - genPos);
 
@@ -122,6 +130,7 @@ namespace Limaki.Common.Reflections {
                 var isTuple = type.IsTuple ();
 
                 var genDelim = isNullable ? "" : isTuple ? "(" : "<";
+
                 if (isNullable || isTuple) {
                     result.Clear ();
                 }
@@ -138,7 +147,7 @@ namespace Limaki.Common.Reflections {
         }
 
         private static A GetSingleAttribute<A> (object[] attributes) where A : Attribute =>
-            attributes.Length > 0 ? (A)attributes[0] : default;
+            attributes.Length > 0 ? (A) attributes[0] : default;
 
         /// <summary>
         /// Returns a requested attribute for a given type
@@ -146,8 +155,8 @@ namespace Limaki.Common.Reflections {
         /// <typeparam name="A">The requested attribute type</typeparam>
         /// <param name="t">The class supposed to provide that attribute</param>
         /// <returns>An attribute of type A or null if none</returns>
-        public static A GetAttribute<A> (this Type t) where A : Attribute => 
-            GetSingleAttribute<A> (t.GetCustomAttributes (typeof (A), true));
+        public static A GetAttribute<A> (this Type t) where A : Attribute =>
+            GetSingleAttribute<A> (t.GetCustomAttributes (typeof(A), true));
 
         /// <summary>
         /// Returns a requested attribute for a given member
@@ -156,10 +165,10 @@ namespace Limaki.Common.Reflections {
         /// <param name="m">The member supposed to provide that attribute</param>
         /// <returns>An attribute of type A or null if none</returns>
         public static A GetAttribute<A> (this System.Reflection.MemberInfo m) where A : Attribute =>
-            GetSingleAttribute<A> (m.GetCustomAttributes (typeof (A), true));
+            GetSingleAttribute<A> (m.GetCustomAttributes (typeof(A), true));
 
         public static A GetAttribute<A> (this System.Reflection.MethodInfo m) where A : Attribute =>
-            GetSingleAttribute<A> (m.GetCustomAttributes (typeof (A), true));
+            GetSingleAttribute<A> (m.GetCustomAttributes (typeof(A), true));
 
         public static PropertyInfo[] GetPublicProperties (this Type type, BindingFlags flags = BindingFlags.FlattenHierarchy | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static) {
             if (type.IsInterface) {
@@ -169,8 +178,10 @@ namespace Limaki.Common.Reflections {
                 var queue = new Queue<Type> ();
                 considered.Add (type);
                 queue.Enqueue (type);
+
                 while (queue.Count > 0) {
                     var subType = queue.Dequeue ();
+
                     foreach (var subInterface in subType.GetInterfaces ()) {
                         if (considered.Contains (subInterface)) continue;
 
@@ -181,7 +192,7 @@ namespace Limaki.Common.Reflections {
                     var typeProperties = subType.GetProperties (flags); //BindingFlags.FlattenHierarchy| BindingFlags.Public| BindingFlags.Instance);
 
                     var newPropertyInfos = typeProperties
-                        .Where (x => !propertyInfos.Contains (x));
+                       .Where (x => !propertyInfos.Contains (x));
 
                     propertyInfos.InsertRange (0, newPropertyInfos);
                 }
@@ -197,16 +208,19 @@ namespace Limaki.Common.Reflections {
         public static Type EnumerableElement (this Type t) {
             if (t.IsSimpleOrNullable ())
                 return default;
+
             if (t.IsArray)
                 return t.GetElementType ();
-            if (t.IsGenericType && typeof (System.Collections.IEnumerable).IsAssignableFrom (t)) {
+
+            if (t.IsGenericType && typeof(System.Collections.IEnumerable).IsAssignableFrom (t)) {
                 return t.GenericTypeArguments.FirstOrDefault ();
             }
+
             return default;
         }
 
         public static bool IsRelation (this MemberInfo it) => it.Relation () != null;
-        
+
         public static RelationAttribute Relation (this MemberInfo it) => it.GetCustomAttribute<RelationAttribute> ();
 
         /// <summary>
@@ -237,7 +251,14 @@ namespace Limaki.Common.Reflections {
             if (parent.IsInterface) {
                 var interfaces = child.GetInterfaces ();
 
-}
+                foreach (var t in interfaces) {
+                    if (parent.IsGenericTypeDefinition) {
+                        if (t.IsGenericType && t.GetGenericTypeDefinition () == parent)
+                            return true;
+                    } else if (t == parent)
+                        return true;
+                }
+            }
 
             return false;
         }
