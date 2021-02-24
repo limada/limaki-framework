@@ -209,7 +209,54 @@ namespace Limaki.Common.Reflections {
         
         public static RelationAttribute Relation (this MemberInfo it) => it.GetCustomAttribute<RelationAttribute> ();
 
-    }
+        /// <summary>
+        /// Determines whether the specified types are considered equal.
+        /// </summary>
+        /// <param name="parent">A <see cref="System.Type"/> instance. </param>
+        /// <param name="child">A type possible derived from the <c>parent</c> type</param>
+        /// <returns>True, when an object instance of the type <c>child</c>
+        /// can be used as an object of the type <c>parent</c>; otherwise, false.</returns>
+        /// <remarks>Note that nullable types does not have a parent-child relation to it's underlying type.
+        /// For example, the 'int?' type (nullable int) and the 'int' type
+        /// aren't a parent and it's child.</remarks>
+        public static bool IsSameOrParentOf (this Type parent, Type child) {
+            if (parent == null) throw new ArgumentNullException (nameof(parent));
+            if (child == null) throw new ArgumentNullException (nameof(child));
 
+            if (parent == child ||
+                child.IsEnum && Enum.GetUnderlyingType (child) == parent ||
+                child.IsSubclassOf (parent)) {
+                return true;
+            }
+
+            if (parent.IsGenericTypeDefinition)
+                for (var t = child; t != typeof(object) && t != null; t = t.BaseType)
+                    if (t.IsGenericType && t.GetGenericTypeDefinition () == parent)
+                        return true;
+
+            if (parent.IsInterface) {
+                var interfaces = child.GetInterfaces ();
+
+}
+
+            return false;
+        }
+
+        public static bool IsGenericEnumerableType (this Type type) {
+            if (type.IsGenericType)
+                if (typeof(IEnumerable<>).IsSameOrParentOf (type))
+                    return true;
+
+            return false;
+        }
+
+        public static bool IsGenericQueryableType (this Type type) {
+            if (type.IsGenericType)
+                if (typeof(IQueryable<>).IsSameOrParentOf (type))
+                    return true;
+
+            return false;
+        }
+    }
 
 }
