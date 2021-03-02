@@ -27,6 +27,8 @@ namespace Limaki.Common.Linqish {
         ParameterExpression param;
         MemberExpression targetMember = null;
 
+        public static Expression<T> Visit<T> (Expression<T> source) => new ExpressionConstantBuilder ().Replace (source);
+        
         public Expression<T> Replace<T>(Expression<T> source) {
             if (source == null)
                 return null;
