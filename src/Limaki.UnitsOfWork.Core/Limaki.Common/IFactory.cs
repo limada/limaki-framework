@@ -12,12 +12,13 @@
  * 
  */
 
-
 using System;
 using System.Collections.Generic;
 
 namespace Limaki.Common {
+
     public interface IFactory {
+
         /// <summary>
         /// returns the associated Type of type
         /// Association is in a Dictionary<Type, Type> 
@@ -26,12 +27,15 @@ namespace Limaki.Common {
         /// <param name="type"></param>
         /// <returns></returns>
         //Type Clazz ( Type type );
+        Type Clazz<T> ();
 
-        Type Clazz<T>();
         IEnumerable<Type> KnownClasses { get; }
-        bool Contains<T>();
-        bool Contains(Type type);
-        object Create ( Type type );
+
+        bool Contains<T> ();
+
+        bool Contains (Type type);
+
+        object Create (Type type);
 
         /// <summary>
         /// calls the default-construtor of the class
@@ -41,9 +45,9 @@ namespace Limaki.Common {
         /// </summary>
         /// <typeparam name="T">interface to translate</typeparam>
         /// <returns>new object of translated class</returns>
-        T Create<T>();
+        T Create<T> ();
 
-        T Create<T>(params object[] args);
+        T Create<T> (params object[] args);
 
         /// <summary>
         /// calls the default-construtor of the class TOuter#TInner#
@@ -53,15 +57,46 @@ namespace Limaki.Common {
         /// <typeparam name="TInner">type to translate</typeparam>
         /// <returns>new object of R_Of{T}</returns>
         //TOuter Create<TInner, TOuter>();
+        void Add (Type source, Type target);
 
-        void Add ( Type source, Type target );
-        void Add<T1, T2>() where T2 : T1;
+        void Add<T1, T2> () where T2 : T1;
+
         void Add<T> (Func<T> creator);
-        void Add<T>(Func<object[], T> creator);
+
+        void Add<T> (Func<object[], T> creator);
 
         Func<T> Func<T> ();
 
         void Clear ();
 
     }
+
+    public static class FactoryExtensions {
+
+        public static IFactory With (this IFactory it, Type source, Type target) {
+            it.Add (source, target);
+
+            return it;
+        }
+
+        public static IFactory With<T1, T2> (this IFactory it) where T2 : T1 {
+            it.Add<T1, T2> ();
+
+            return it;
+        }
+
+        public static IFactory With<T> (this IFactory it, Func<T> creator) {
+            it.Add<T> (creator);
+
+            return it;
+        }
+
+        public static IFactory With<T> (this IFactory it, Func<object[], T> creator) {
+            it.Add<T> (creator);
+
+            return it;
+        }
+
+    }
+
 }
