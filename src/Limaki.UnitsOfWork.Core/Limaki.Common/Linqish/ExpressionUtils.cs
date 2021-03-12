@@ -23,9 +23,10 @@ namespace Limaki.Common.Linqish {
     public static class ExpressionUtils {
 
         public static MemberInfo MemberInfo<T, TMember>(this Expression<Func<T, TMember>> exp) {
-            var member = exp.Body as MemberExpression;
-            if (member != null)
+            if (exp.Body is MemberExpression member)
                 return member.Member;
+            if (exp.Body is MethodCallExpression method)
+                return method.Method;
             throw new ArgumentException(string.Format("{0} is not a MemberExpression", exp.ToString()));
         }
 
@@ -132,6 +133,19 @@ namespace Limaki.Common.Linqish {
             }
 
             return me;
+        }
+
+        public static string NullMember<E, M>(E q, Expression<Func<E, M>> member, bool addValue = false)
+        {
+            if (!(member.Body is MemberExpression me && me.Member is PropertyInfo prop))
+                return string.Empty;
+
+            var r = $"{prop.Name}";
+            if (q == null)
+                return r;
+            object val = prop.GetValue(q);
+
+            return val == null ? $"{r}==null" : addValue ? $"{r}:{val}" : $"{r}";
         }
     }
 }
