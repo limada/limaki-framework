@@ -68,7 +68,7 @@ namespace Limaki.UnitsOfWork.Tridles.Usecases {
         public bool SetStringTridleValue (Store store, Guid key, Guid member, string value) {
             var tridle = GetStringTridle (store, key, member);
             var vm = new ViewModel<object> (null) { Store = store };
-            return vm.EntityChanged (tridle, (t, s) => t.Value = s, tridle.Value, value, nameof (IStringTridle.Value));
+            return vm.PropertyChanged (tridle, (t, s) => t.Value = s, tridle.Value, value, nameof (IStringTridle.Value));
         }
 
         public INumberTridle GetNumberTridle (Store store, Guid key, Guid member) {
