@@ -1,6 +1,21 @@
+/*
+ * Limaki 
+ * 
+ * This code is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License version 2 only, as
+ * published by the Free Software Foundation.
+ * 
+ * Author: Lytico
+ * Copyright (C) 2009 - 2021 Lytico
+ *
+ * http://www.limada.org
+ * 
+ */
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Text;
 using Limaki.Common;
 using Limaki.UnitsOfWork.IdEntity.Model;
@@ -10,8 +25,6 @@ namespace Limaki.UnitsOfWork {
     public interface IJsonPagedInput  {
         string PagingJson { get; set; }
     }
-
-
 
     public interface ICheckable {
         string Check ();
@@ -24,7 +37,7 @@ namespace Limaki.UnitsOfWork {
         public virtual void ClearState () => IsDirty = false;
 
         Store _store = null;
-        public virtual Store Store { get => _store ?? (_store = new Store ()); set => _store = value; }
+        public virtual Store Store { get => _store ??= new Store (); set => _store = value; }
 
         public virtual bool ReadOnly { get; set; }
 
@@ -36,21 +49,21 @@ namespace Limaki.UnitsOfWork {
             if (value != null) {
                 value = value.Trim ();
                 if (length.HasValue && value.Length > length.Value)
-                    return string.Format ("{0} ist zu lang (maximal {1} Zeichen erlaubt)", memberName, length.Value);
+                    return $"{memberName} ist zu lang (maximal {length.Value} Zeichen erlaubt)";
             }
 
-            if (required && (value == null || value.Length == 0))
+            if (required && string.IsNullOrEmpty (value))
                 return memberName + " ist ein Pflichtfeld!";
             return "";
         }
 
         protected virtual string CheckMember (string value, string memberName, int length) => CheckMember (value, memberName, true, length);
 
-        protected virtual string CheckMember (string value, string memberName) => CheckMember (value, memberName, true, null);
+        protected virtual string CheckMember (string value, string memberName) => CheckMember (value, memberName, true, default);
 
         protected virtual string DataErrorInfo (string memberName) => "";
 
-        string IDataErrorInfo.this[string memberName] { get => DataErrorInfo (memberName); }
+        string IDataErrorInfo.this[string memberName] => DataErrorInfo (memberName);
 
         public virtual string Check () {
             var result = new StringBuilder ();
@@ -93,47 +106,47 @@ namespace Limaki.UnitsOfWork {
 
         protected string Adjust<V> (string value) => string.IsNullOrEmpty (value) ? default (V).ToString () : value;
 
-        public virtual bool EntityChanged<V> (Action<T, V> setter, V oldValue, V value, string member = null)
-        => EntityChanged<T, V> (Entity, setter, oldValue, value, member);
+        public virtual bool PropertyChanged<V> (Action<T, V> setter, V oldValue, V value,  [CallerMemberName] string member = null)
+        => PropertyChanged<T, V> (Entity, setter, oldValue, value, member);
 
-        public virtual bool EntityChanged (Action<T, decimal> setter, decimal oldValue, string value, string member = null)
-            => EntityChanged (Entity, setter, oldValue, value, member);
-        public virtual bool EntityChanged (Action<T, double> setter, double oldValue, string value, string member = null)
-        => EntityChanged (Entity, setter, oldValue, value, member);
+        public virtual bool PropertyChanged (Action<T, decimal> setter, decimal oldValue, string value,  [CallerMemberName] string member = null)
+            => PropertyChanged (Entity, setter, oldValue, value, member);
+        public virtual bool PropertyChanged (Action<T, double> setter, double oldValue, string value,  [CallerMemberName] string member = null)
+        => PropertyChanged (Entity, setter, oldValue, value, member);
 
-        public virtual bool EntityChanged (Action<T, int> setter, int oldValue, string value, string member = null)
-        => EntityChanged (Entity, setter, oldValue, value, member);
+        public virtual bool PropertyChanged (Action<T, int> setter, int oldValue, string value,  [CallerMemberName] string member = null)
+        => PropertyChanged (Entity, setter, oldValue, value, member);
 
-        public virtual bool EntityChanged (Action<T, long> setter, long oldValue, string value, string member = null)
-        => EntityChanged (Entity, setter, oldValue, value, member);
+        public virtual bool PropertyChanged (Action<T, long> setter, long oldValue, string value,  [CallerMemberName] string member = null)
+        => PropertyChanged (Entity, setter, oldValue, value, member);
 
-        public virtual bool EntityChanged (Action<T, DateTime> setter, DateTime oldValue, string value, string member = null)
-        => EntityChanged (Entity, setter, oldValue, value, member);
+        public virtual bool PropertyChanged (Action<T, DateTime> setter, DateTime oldValue, string value,  [CallerMemberName] string member = null)
+        => PropertyChanged (Entity, setter, oldValue, value, member);
 
-        public virtual bool EntityChangedEnum<E> (Action<T, E> setter, E oldValue, string value, string member = null) where E : struct, System.Enum
-        => EntityChangedEnum (Entity, setter, oldValue, value, member);
+        public virtual bool PropertyChangedEnum<E> (Action<T, E> setter, E oldValue, string value,  [CallerMemberName] string member = null) where E : struct, System.Enum
+        => PropertyChangedEnum (Entity, setter, oldValue, value, member);
 
-        public virtual bool EntityChanged<A> (A entity, Action<A, decimal> setter, decimal oldValue, string value, string member = null)
-        => decimal.TryParse (Adjust<decimal> (value), out var dValue) && EntityChanged (entity, setter, oldValue, dValue, member);
+        public virtual bool PropertyChanged<A> (A entity, Action<A, decimal> setter, decimal oldValue, string value,  [CallerMemberName] string member = null)
+        => decimal.TryParse (Adjust<decimal> (value), out var dValue) && PropertyChanged (entity, setter, oldValue, dValue, member);
 
-        public virtual bool EntityChanged<A> (A entity, Action<A, double> setter, double oldValue, string value, string member = null)
-        => double.TryParse (Adjust<double> (value), out var dValue) && EntityChanged (entity, setter, oldValue, dValue, member);
+        public virtual bool PropertyChanged<A> (A entity, Action<A, double> setter, double oldValue, string value,  [CallerMemberName] string member = null)
+        => double.TryParse (Adjust<double> (value), out var dValue) && PropertyChanged (entity, setter, oldValue, dValue, member);
 
-        public virtual bool EntityChanged<A> (A entity, Action<A, int> setter, int oldValue, string value, string member = null)
-        => int.TryParse (Adjust<int> (value), out var dValue) && EntityChanged (entity, setter, oldValue, dValue, member);
+        public virtual bool PropertyChanged<A> (A entity, Action<A, int> setter, int oldValue, string value,  [CallerMemberName] string member = null)
+        => int.TryParse (Adjust<int> (value), out var dValue) && PropertyChanged (entity, setter, oldValue, dValue, member);
 
-        public virtual bool EntityChanged<A> (A entity, Action<A,long> setter, long oldValue, string value, string member = null)
-        => long.TryParse (Adjust<long> (value), out var dValue) && EntityChanged (entity, setter, oldValue, dValue, member);
+        public virtual bool PropertyChanged<A> (A entity, Action<A,long> setter, long oldValue, string value,  [CallerMemberName] string member = null)
+        => long.TryParse (Adjust<long> (value), out var dValue) && PropertyChanged (entity, setter, oldValue, dValue, member);
 
-        public virtual bool EntityChanged<A> (A entity, Action<A, DateTime> setter, DateTime oldValue, string value, string member = null)
-        => DateTime.TryParse (Adjust<DateTime> (value), out var dValue) && EntityChanged (entity, setter, oldValue, dValue, member);
+        public virtual bool PropertyChanged<A> (A entity, Action<A, DateTime> setter, DateTime oldValue, string value,  [CallerMemberName] string member = null)
+        => DateTime.TryParse (Adjust<DateTime> (value), out var dValue) && PropertyChanged (entity, setter, oldValue, dValue, member);
 
-        public virtual bool EntityChangedEnum<A, E> (A entity, Action<A, E> setter, E oldValue, string value, string member = null) where E : struct, System.Enum
-            => Enum.TryParse (value, out E dValue) && EntityChanged (entity, setter, oldValue, dValue, member);
+        public virtual bool PropertyChangedEnum<A, E> (A entity, Action<A, E> setter, E oldValue, string value,  [CallerMemberName] string member = null) where E : struct, System.Enum
+            => Enum.TryParse (value, out E dValue) && PropertyChanged (entity, setter, oldValue, dValue, member);
 
         protected virtual void Update<A> (A entity) => Store.Update (entity);
 
-        public virtual bool EntityChanged<A, V> (A entity, Action<A, V> setter, V oldValue, V newValue, string member = null) {
+        public virtual bool PropertyChanged<A, V> (A entity, Action<A, V> setter, V oldValue, V newValue,  [CallerMemberName] string member = null) {
             var result = !object.Equals (newValue, oldValue);
             if (member == null && result) {
                 setter (entity, newValue);
