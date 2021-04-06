@@ -14,8 +14,8 @@ namespace Limaki.Common {
         /// just created 
         /// </summary>
         public bool Creating {
-            get { return _creating; }
-            set { _creating = value; }
+            get => _creating;
+            set => _creating = value;
         }
 
         bool _clean = false;
@@ -25,7 +25,7 @@ namespace Limaki.Common {
         /// sets creating/dirty/hollow false if true
         /// </summary>
         public bool Clean {
-            get { return _clean; }
+            get => _clean;
             set {
                 if (value && Dirty)
                     _dirty = false;
@@ -43,7 +43,7 @@ namespace Limaki.Common {
         /// never saved in a dataStore until now
         /// </summary>
         public bool Hollow {
-            get { return _hollow; }
+            get => _hollow;
             set {
                 if (!value && _hollow) {
                     _dirty = false;
@@ -62,7 +62,7 @@ namespace Limaki.Common {
         /// hollow remains unchanged!
         /// </summary>
         public bool Dirty {
-            get { return _dirty; }
+            get => _dirty;
             set {
                 if (!Creating) {
                     if (value && Clean)
