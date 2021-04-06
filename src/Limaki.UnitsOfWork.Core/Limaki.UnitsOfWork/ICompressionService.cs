@@ -17,7 +17,7 @@ using System.IO;
 
 namespace Limaki.UnitsOfWork {
 
-    public interface ICompressionWorker {
+    public interface ICompressionService {
         bool Compressable (Guid compression);
         Stream Compress (Stream stream, Guid compression);
         Stream DeCompress (Stream stream, Guid compression);

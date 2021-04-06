@@ -22,16 +22,16 @@ namespace Limaki.UnitsOfWork.Tridles.Usecases {
 
     public static class TridleContentExtentions {
 
-        static ICompressionWorker _compressionWorker = null;
-        public static ICompressionWorker CompressionWorker {
-            get => _compressionWorker ?? (_compressionWorker = Registry.Pooled<ICompressionWorker> ());
-            set { _compressionWorker = value; }
+        static ICompressionService _compressionService = null;
+        public static ICompressionService CompressionService {
+            get => _compressionService ?? (_compressionService = Registry.Pooled<ICompressionService> ());
+            set { _compressionService = value; }
         }
 
         public static Stream GetDeCompressed (this IByteArrayTridle it, Guid compression) {
             if (it == null)
                 return null;
-            var stream = CompressionWorker.DeCompress (new MemoryStream (it.Value), compression);
+            var stream = CompressionService.DeCompress (new MemoryStream (it.Value), compression);
             stream.Position = 0;
             return stream;
 
@@ -40,7 +40,7 @@ namespace Limaki.UnitsOfWork.Tridles.Usecases {
         public static Stream GetCompressed (this IByteArrayTridle it, Guid compression) {
             if (it == null)
                 return null;
-            var stream = CompressionWorker.Compress (new MemoryStream (it.Value), compression);
+            var stream = CompressionService.Compress (new MemoryStream (it.Value), compression);
             stream.Position = 0;
             return stream;
 
@@ -49,7 +49,7 @@ namespace Limaki.UnitsOfWork.Tridles.Usecases {
         public static Stream GetCompressed (this Stream it, Guid compression) {
             if (it == null)
                 return null;
-            var stream = CompressionWorker.Compress (it, compression);
+            var stream = CompressionService.Compress (it, compression);
             stream.Position = 0;
             return stream;
 

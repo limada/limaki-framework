@@ -19,7 +19,7 @@ using ICSharpCode.SharpZipLib.Zip.Compression.Streams;
 
 namespace Limaki.UnitsOfWork.Usecases {
 
-    public class CompressionWorker : ICompressionWorker {
+    public class CompressionService : ICompressionService {
 
         const int bufferSize = 1024 * 8;
 
@@ -143,7 +143,7 @@ namespace Limaki.UnitsOfWork.Usecases {
         #endregion
 
 
-        bool ICompressionWorker.Compressable (Guid compression) => IsCompressed (compression);
+        bool ICompressionService.Compressable (Guid compression) => IsCompressed (compression);
 
         public static bool IsCompressed (Guid compression) => !((compression == CompressionTypes.None) || (compression == CompressionTypes.NeverCompress));
     }

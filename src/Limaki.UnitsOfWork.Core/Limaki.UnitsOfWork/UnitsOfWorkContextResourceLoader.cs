@@ -37,7 +37,7 @@ namespace Limaki.UnitsOfWork {
 
             ResourceLoader?.ApplyResources (context);
 
-            context.Factory.Add<ICompressionWorker, CompressionWorker> ();
+            context.Factory.Add<ICompressionService, CompressionService> ();
 
 
             Applied = true;
