@@ -16,6 +16,7 @@ using System;
 using System.IO;
 using ICSharpCode.SharpZipLib.BZip2;
 using ICSharpCode.SharpZipLib.Zip.Compression.Streams;
+using Limaki.Common;
 
 namespace Limaki.UnitsOfWork.Usecases {
 
@@ -25,15 +26,18 @@ namespace Limaki.UnitsOfWork.Usecases {
 
         public virtual Stream Compress (Stream stream, Guid compression) {
             stream.Position = 0;
+
             if (!IsCompressed (compression)) return stream;
-            
+
             var size = 0;
             var result = new MemoryStream ();
+
             if (compression == CompressionTypes.BZip2) {
                 size = BZip2Compress (stream, result);
             } else if (compression == CompressionTypes.Zip) {
                 size = ZipCompress (stream, result);
             }
+
             result.SetLength (size);
 
             return result;
@@ -42,9 +46,12 @@ namespace Limaki.UnitsOfWork.Usecases {
 
         public virtual Stream DeCompress (Stream stream, Guid compression) {
             stream.Position = 0;
-            if (!IsCompressed (compression)) return stream;
-            
+
+            if (!IsCompressed (compression)) 
+                return stream;
+
             var result = new MemoryStream ();
+
             try {
                 if (compression == CompressionTypes.BZip2) {
 
@@ -62,10 +69,21 @@ namespace Limaki.UnitsOfWork.Usecases {
             return result;
         }
 
+        public byte[] DeCompress (byte[] data, Guid compression) {
+            if (!IsCompressed (compression))
+                return data;
+
+            using var source = new MemoryStream (data);
+            using var decompressed = DeCompress (source, compression);
+
+            return decompressed.GetBuffer ();
+        }
+
         #region Compression
 
         public virtual int BZip2Compress (Stream uncompressed, Stream compressed) {
             uncompressed.Seek (0, SeekOrigin.Begin);
+
             var bZip2Stream = new BZip2OutputStream (compressed, 9) {
                 IsStreamOwner = false
             };
@@ -73,27 +91,35 @@ namespace Limaki.UnitsOfWork.Usecases {
             var position = 0;
             var length = uncompressed.Length;
             var buffer = new byte[bufferSize];
+
             while (position < length - 1) {
-                var readByte = uncompressed.Read (buffer, 0, bufferSize); bZip2Stream.Write (buffer, 0, readByte);
+                var readByte = uncompressed.Read (buffer, 0, bufferSize);
+                bZip2Stream.Write (buffer, 0, readByte);
                 position += readByte;
             }
 
             bZip2Stream.Close ();
+
             return bZip2Stream.BytesWritten;
         }
 
         public virtual void BZip2Decompress (Stream compressed, Stream decompressed) {
             compressed.Seek (0, SeekOrigin.Begin);
+
             var bZip2Stream = new BZip2InputStream (compressed) {
                 IsStreamOwner = false
             };
 
             var buffer = new byte[bufferSize];
             var position = 0;
+
             while (true) {
-                var readByte = bZip2Stream.Read (buffer, 0, bufferSize); if (readByte <= 0) {
+                var readByte = bZip2Stream.Read (buffer, 0, bufferSize);
+
+                if (readByte <= 0) {
                     break;
                 }
+
                 decompressed.Write (buffer, 0, readByte);
                 position += readByte;
             }
@@ -104,6 +130,7 @@ namespace Limaki.UnitsOfWork.Usecases {
 
         public virtual int ZipCompress (Stream uncompressed, Stream compressed) {
             uncompressed.Seek (0, SeekOrigin.Begin);
+
             var zipStream = new DeflaterOutputStream (compressed) {
                 IsStreamOwner = false // compress wants to have compressed Stream open
             };
@@ -111,6 +138,7 @@ namespace Limaki.UnitsOfWork.Usecases {
             var buffer = new byte[bufferSize];
             var position = 0;
             var length = uncompressed.Length;
+
             while (position < length - 1) {
                 var readByte = uncompressed.Read (buffer, 0, bufferSize);
                 zipStream.Write (buffer, 0, readByte);
@@ -121,6 +149,7 @@ namespace Limaki.UnitsOfWork.Usecases {
             zipStream.Flush ();
             var result = (int)compressed.Length;
             zipStream.Close ();
+
             return result;
         }
 
@@ -130,7 +159,9 @@ namespace Limaki.UnitsOfWork.Usecases {
             var zipStream = new InflaterInputStream (compressed) {
                 IsStreamOwner = false
             };
+
             var b = zipStream.ReadByte ();
+
             while (b != -1) {
                 decompressed.WriteByte ((byte)b);
                 b = zipStream.ReadByte ();
@@ -142,9 +173,10 @@ namespace Limaki.UnitsOfWork.Usecases {
 
         #endregion
 
-
         bool ICompressionService.Compressable (Guid compression) => IsCompressed (compression);
 
         public static bool IsCompressed (Guid compression) => !((compression == CompressionTypes.None) || (compression == CompressionTypes.NeverCompress));
+
     }
+
 }

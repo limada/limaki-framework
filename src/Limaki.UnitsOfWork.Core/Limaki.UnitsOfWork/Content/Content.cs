@@ -57,6 +57,8 @@ namespace Limaki.UnitsOfWork.Content {
 
     public class Content<TKey, TData> : Content<TData>, IContent<TKey, TData> {
 
+        public Content () { }
+        
         public TKey Id { get; set; }
 
         public Content (IContent source) : base (source) {

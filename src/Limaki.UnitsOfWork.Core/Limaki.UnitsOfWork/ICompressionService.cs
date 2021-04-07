@@ -21,5 +21,8 @@ namespace Limaki.UnitsOfWork {
         bool Compressable (Guid compression);
         Stream Compress (Stream stream, Guid compression);
         Stream DeCompress (Stream stream, Guid compression);
+        
+        byte[] DeCompress (byte[] data, Guid compression);
+
     }
 }
