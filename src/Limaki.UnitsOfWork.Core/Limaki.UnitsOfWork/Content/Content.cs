@@ -17,7 +17,7 @@ using Limaki.UnitsOfWork.Usecases;
 
 namespace Limaki.UnitsOfWork.Content {
 
-    public class Content {
+    public class Content : IContent {
 
         public Guid Compression { get; set; } = CompressionTypes.None;
         public Guid ContentType { get; set; } = ContentTypes.Unknown;
@@ -25,7 +25,7 @@ namespace Limaki.UnitsOfWork.Content {
         public object Source { get; set; }
     }
 
-    public class Content<T> : Content {
+    public class Content<T> : Content, IContent<T> {
 
         public T Data { get; set; }
 
@@ -43,24 +43,24 @@ namespace Limaki.UnitsOfWork.Content {
             ContentType = streamType;
         }
 
-        public Content (Content source) {
+        public Content (IContent source) {
             if (source != null) {
                 Description = source.Description;
                 Source = source.Source;
                 Compression = source.Compression;
                 ContentType = source.ContentType;
-                if (source is Content<T> sourceT)
+                if (source is IContent<T> sourceT)
                     Data = sourceT.Data;
             }
         }
     }
 
-    public class Content<TKey, TData> : Content<TData> {
+    public class Content<TKey, TData> : Content<TData>, IContent<TKey, TData> {
 
         public TKey Id { get; set; }
 
-        public Content (Content source) : base (source) {
-            if (source is Content<TKey, TData> sourceT)
+        public Content (IContent source) : base (source) {
+            if (source is IContent<TKey, TData> sourceT)
                 Id = sourceT.Id;
         }
 
