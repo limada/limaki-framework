@@ -18,7 +18,7 @@ using Limaki.UnitsOfWork.Model;
 
 namespace Limaki.UnitsOfWork {
 
-    public class UnitsOfWorkModelGuids : GuidFlags, SchemaGuids.IModelGuids {
+    public class UnitsOfWorkModelGuids : GuidFlags, ITypedGuidMapper {
 
         public UnitsOfWorkModelGuids () { }
 

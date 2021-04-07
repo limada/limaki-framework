@@ -20,10 +20,7 @@ using System.Linq;
 using System.Reflection;
 
 namespace Limaki.UnitsOfWork.Model {
-
-    public class SchemaGuids {
-        public interface IModelGuids {
-        }
+    public interface ITypedGuidMapper {
     }
 
     public static class SchemaExtensions {
