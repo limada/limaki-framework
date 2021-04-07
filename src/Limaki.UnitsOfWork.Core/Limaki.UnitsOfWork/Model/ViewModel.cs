@@ -169,7 +169,7 @@ namespace Limaki.UnitsOfWork {
             => Enum.TryParse (value, out E dValue) && PropertyChanged (entity, setter, oldValue, dValue, member);
 
         public virtual bool PropertyChanged<A> (A entity, Action<A, DateTime?> setter, DateTime? oldValue, string value, [CallerMemberName] string member = null)
-            => DateTime.TryParse (Adjust<DateTime> (value), out var dValue) && PropertyChanged (entity, setter, oldValue, dValue, member);
+            => DateTime.TryParse (Adjust<DateTime> (value), out var dValue) && PropertyChanged (entity, setter, oldValue, string.IsNullOrEmpty (value) ? default(DateTime?) : dValue, member);
 
         public virtual bool PropertyChanged<A> (A entity, Action<A, char> setter, char oldValue, string value, [CallerMemberName] string member = null)
             => PropertyChanged (entity, setter, oldValue, string.IsNullOrEmpty (value) ? default(char) : value[0], member);
