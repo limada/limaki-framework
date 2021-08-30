@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+  <PropertyGroup>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>1591</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
+    <RootNamespace>Limaki</RootNamespace>
+    <LangVersion>8</LangVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <Folder Include="Limaki.Repository\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="$(Libs3rdPartyDirectory)\Linq2Db\Source\LinqToDB\LinqToDB.csproj" />
+    <ProjectReference Include="$(UnitsOfWorkDirectory)\Limaki.UnitsOfWork.Core\Limaki.UnitsOfWork.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="$(UnitsOfWorkDirectory)\AssemblyInfo.Shared.cs">
+      <Link>Properties\AssemblyInfo.Shared.cs</Link>
+    </Compile>
+  </ItemGroup>
+</Project>
