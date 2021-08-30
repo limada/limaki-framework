@@ -12,8 +12,10 @@
  * 
  */
 
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
+using Limaki.Common;
 
 namespace Limaki.Data {
 
@@ -35,7 +37,7 @@ namespace Limaki.Data {
 
     }
 
-    public class DbProviderPool {
+    public class DbProviderPool:IEnumerable<IDbProvider> {
 
         protected Dictionary<string, IDbProvider> _providers = new Dictionary<string, IDbProvider> ();
 
@@ -43,10 +45,14 @@ namespace Limaki.Data {
             _providers [fbProvider.Name] = fbProvider;
         }
 
-        public IDbProvider Get (string name) {
-            IDbProvider result = null;
-            _providers.TryGetValue (name ?? "", out result);
+        public IDbProvider Get (string name)
+        {
+            _providers.TryGetValue(name ?? "", out IDbProvider result);
             return result;
         }
+
+        public IEnumerator<IDbProvider> GetEnumerator() => _providers.Values.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

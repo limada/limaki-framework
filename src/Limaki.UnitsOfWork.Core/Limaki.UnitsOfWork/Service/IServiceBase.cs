@@ -12,57 +12,63 @@
  * 
  */
 
-#if WCF
-using System.ServiceModel;
+#if ! WCF
 
-namespace Limaki.UnitsOfWork {
+ namespace Limaki.UnitsOfWork.Service {
 
-    [ServiceContract]
     public interface IServiceBase {
+
         /// <summary>
         /// gives back true
         /// if service can be pinged
         /// </summary>
-        /// <returns></returns>
-        [OperationContract, FaultContract (typeof (string))]
         bool Ping ();
 
         /// <summary>
-        /// executes tests on the service
-        /// eg. database connection
+        /// tries to connects to the Service
+        /// eg. opens database connections
         /// </summary>
-        /// <returns>null if everything ok, else error-string</returns>
-        [OperationContract, FaultContract (typeof (string))]
-        string Test ();
+        /// <returns>Information about service or errors</returns>
+       
+        string TryConnect ();
 
-        [OperationContract, FaultContract (typeof (string))]
-        byte [] Resource (string name);
+        string ServiceInfo ();
 
-        [OperationContract, FaultContract (typeof (string))]
-        string ServerVersion ();
+        string ServerVersion();
     }
 }
-#else
-namespace Limaki.UnitsOfWork.Service {
 
-    public interface IServiceBase {
+#else
+
+using System.ServiceModel;
+
+namespace Limaki.UnitsOfWork
+{
+
+    [ServiceContract]
+    public interface IServiceBase
+    {
         /// <summary>
         /// gives back true
         /// if service can be pinged
         /// </summary>
         /// <returns></returns>
-        bool Ping ();
+        [OperationContract, FaultContract(typeof(string))]
+        bool Ping();
 
         /// <summary>
         /// executes tests on the service
         /// eg. database connection
         /// </summary>
         /// <returns>null if everything ok, else error-string</returns>
-        string Test ();
+        [OperationContract, FaultContract(typeof(string))]
+        string Test();
 
-        byte [] Resource (string name);
+        [OperationContract, FaultContract(typeof(string))]
+        byte[] Resource(string name);
 
-        string ServerVersion ();
+        [OperationContract, FaultContract(typeof(string))]
+        string ServerVersion();
     }
 }
 #endif

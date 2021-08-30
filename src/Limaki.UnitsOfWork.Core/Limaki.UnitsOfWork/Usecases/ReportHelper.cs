@@ -12,6 +12,7 @@
  * 
  */
 
+using System.Diagnostics;
 using System.IO;
 using Limaki.Common;
 using Limaki.UnitsOfWork.Reporting;
@@ -22,7 +23,7 @@ namespace Limaki.UnitsOfWork.Usecases {
 
         IReportSettingsProvider _reportSettings = null;
         public virtual IReportSettingsProvider ReportSettings {
-            get => _reportSettings;
+            get => _reportSettings ??= Registry.Pooled<IReportSettingsProvider> ();
             set => _reportSettings = value;
         }
 
@@ -30,7 +31,7 @@ namespace Limaki.UnitsOfWork.Usecases {
 
         public void ShowFile (string file) {
             if (File.Exists (file)) {
-                System.Diagnostics.Process.Start (file);
+                using (var _ = Process.Start( new ProcessStartInfo {FileName = file, UseShellExecute = true})) { }
             }
         }
     }

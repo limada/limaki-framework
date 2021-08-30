@@ -41,21 +41,29 @@ namespace Limaki.UnitsOfWork.IdEntity.Model {
             }
         }
 
-        public virtual void InstrumentEntity<I, T> (IFactory factory, bool mapping = true) where I : IIdEntity where T : Dto.IdEntity, I, new() {
+        protected virtual void InstrumentInternal<I, T> (IFactory factory, bool mapping = true) where T : I, new() {
+            knownClazzes[typeof (I)] = typeof (T);
 
-            Instrument<I, T> (factory, mapping);
+            if (mapping) {
+                if (!EntityMapping.Any (e => e.Item1 == typeof (I)))
+                    EntityMapping.Add (Tuple.Create (typeof (I), typeof (T)));
+            }
+        }
+
+        public Func<Guid> CreateGuid { get; set; }
+
+        public Guid NewGuid () => CreateGuid != null ? CreateGuid () : Guid.NewGuid ();
+
+        public virtual void InstrumentEntity<I, T> (IFactory factory, bool mapping = true) where I : IIdEntity where T : Dto.IdEntity, I, new() {
+            factory.Add<I> (() => new T { CreatedAt = DateTime.Now, Id = NewGuid () });
+            InstrumentInternal<I, T> (factory, mapping);
             AddIdEntityStuff<I> (factory);
         }
 
         public virtual void Instrument<I, T> (IFactory factory, bool mapping = true) where T : I, new() {
 
             factory.Add<I> (() => new T ());
-            knownClazzes [typeof (I)] = typeof (T);
-
-            if (mapping) {
-                if (!EntityMapping.Any (e => e.Item1 == typeof (I)))
-                    EntityMapping.Add (Tuple.Create (typeof (I), typeof (T)));
-            }
+            InstrumentInternal<I, T> (factory, mapping);
         }
 
         protected override void InstrumentClazzes () {

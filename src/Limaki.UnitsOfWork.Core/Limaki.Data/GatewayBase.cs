@@ -13,6 +13,8 @@
  */
 
 
+using Limaki.Common;
+
 namespace Limaki.Data {
 
 	public abstract class GatewayBase : IGateway {

@@ -16,6 +16,7 @@ using System;
 using Limaki.Common;
 
 namespace Limaki.UnitsOfWork.Service.Client {
+
     /// <summary>
     /// Service facade.
     /// used to consume a servcice on client side
@@ -40,15 +41,17 @@ namespace Limaki.UnitsOfWork.Service.Client {
 
         public abstract string ServiceInfo ();
 
-        public abstract void SaveChanges ();
-
-        public abstract void SaveChanges (Store store);
-
-        public abstract void Connect ();
+        public abstract string Connect();
 
         public abstract void LoadOnStart ();
 
         public abstract void ClearOnEnd ();
+
+
+        public abstract void SaveChanges();
+
+        public abstract void SaveChanges(Store store);
+
 
         #region Service
 

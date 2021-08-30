@@ -20,6 +20,8 @@ namespace Limaki.UnitsOfWork {
     public interface IStoreManager {
         
         Store Store { get; }
+        Store CreateStore();
+
         ILog Log { get; set; }
 
         void Clear ();

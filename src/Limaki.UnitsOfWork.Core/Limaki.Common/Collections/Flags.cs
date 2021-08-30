@@ -40,8 +40,9 @@ namespace Limaki.Common.Collections {
         public Flags<T> Add (params T[] flags) => Add ((IEnumerable<T>)flags);
 
         public Flags<T> Add (IEnumerable<T> flags) {
-            foreach (var f in flags)
-                Add (f);
+            if (flags != default)
+                foreach (var f in flags)
+                    Add (f);
             return this;
         }
 
@@ -52,8 +53,9 @@ namespace Limaki.Common.Collections {
 
         public Flags<T> Remove (params T[] flags) => Remove ((IEnumerable<T>)flags);
         public Flags<T> Remove (IEnumerable<T> flags) {
-            foreach (var f in flags)
-                Remove (f);
+            if (flags != default)
+                foreach (var f in flags)
+                    Remove (f);
             return this;
         }
 
@@ -70,7 +72,22 @@ namespace Limaki.Common.Collections {
 
         public bool HasFlag (params T[] other) => HasFlag ((IEnumerable<T>)other);
 
-        public bool Overlaps (Flags<T> other) => _flags.Overlaps (other._flags);
+        /// <summary>
+        /// Determines whether the current Flags object and other share common elements.
+        /// </summary>
+        public bool Overlaps (Flags<T> other) => other != default && _flags.Overlaps (other._flags);
+        /// <summary>
+        /// Determines whether the current Flags object and other share common elements.
+        /// </summary>
+        public bool Overlaps (params T[] other) => _flags.Overlaps (other);
+        /// <summary>
+        /// Determines whether the current Flags object and other share common elements.
+        /// </summary>
+        public bool Overlaps (IEnumerable<T> other) => other != default && _flags.Overlaps (other);
+
+        /// <summary>
+        /// Determines whether the current Flags object is a subset of other
+        /// </summary>
         public bool IsSubsetOf (Flags<T> other) => _flags.IsSubsetOf (other._flags);
 
         public override bool Equals (object obj) {
@@ -105,6 +122,24 @@ namespace Limaki.Common.Collections {
 
         public static implicit operator Flags<T>(T value) => new Flags<T> (value);
 
+        public static implicit operator Flags<T>(T[] value) => new Flags<T> (value);
+
+        public static Flags<T> operator & (Flags<T> c1, Flags<T> c2) => Intersect (c1, Create (c1.GetType ()), c2);
+
+        public static Flags<T> operator & (Flags<T> c1, IEnumerable<T> c2) => Intersect (c1, Create (c1.GetType ()), c2.ToArray ());
+
+        public static Flags<T> operator & (Flags<T> c1, T g) {
+            var add = c1._flags.Contains (g);
+            c1 = Create (c1.GetType ());
+            if (add)
+                return c1.Add (g);
+            return c1;
+        }
+
+        public static Flags<T> operator | (Flags<T> c1, Flags<T> c2) => Create (c1.GetType ()).Add (c1._flags).Add (c2._flags);
+
+        public static Flags<T> operator | (Flags<T> c1, T g) => Create (c1.GetType ()).Add (g);
+
         protected static IEqualityComparer<T> comparer = EqualityComparer<T>.Default;
 
         public override int GetHashCode () {
@@ -116,7 +151,6 @@ namespace Limaki.Common.Collections {
             return h;
         }
 
-
         static Flags<T> Create (Type type) {
             return (Flags<T>)Activator.CreateInstance (type);
         }
@@ -124,40 +158,33 @@ namespace Limaki.Common.Collections {
         public override string ToString () => string.Join (",", _flags.Select (NameOf));
         public virtual string ToString (Func<string, string> f) => string.Join (",", _flags.Select (s => f (NameOf (s))));
 
-        public static Flags<T> operator & (Flags<T> c1, Flags<T> c2) {
-            var result = Create (c1.GetType ());
-            result._flags.UnionWith (c1._flags);
-            result._flags.IntersectWith (c2._flags);
-            return result;
-        }
-
-        public static Flags<T> operator & (Flags<T> c1, T g) {
-            var add = c1._flags.Contains (g);
-            c1 = Create (c1.GetType ());
-            if (add)
-                return c1.Add (g);
-            return c1;
-        }
-
-        public static Flags<T> operator | (Flags<T> c1, Flags<T> c2) {
-            return Create (c1.GetType ()).Add (c1._flags).Add (c2._flags);
-        }
-
-        public static Flags<T> operator | (Flags<T> c1, T g) => Create (c1.GetType ()).Add (g);
-
         // WARNING! do not make ist static; All() fails then, as first Flags<T>-class takes _flagFields over
         // needs a more sophisticated static cache; eg: Dictionary<Type,PropertyInfo []> _cache and call with _cache.TryGet(this.gettype)
         protected PropertyInfo[] _flagFields = null;
-        protected PropertyInfo[] FlagFields => _flagFields ?? (_flagFields = GetType ().GetProperties (BindingFlags.Static | BindingFlags.Public)
+        protected PropertyInfo[] FlagFields => _flagFields ?? (_flagFields = GetType ().GetProperties (BindingFlags.Static | BindingFlags.Public | BindingFlags.FlattenHierarchy)
                                                                         .Where (p => p.PropertyType == typeof (T))
                                                                         .ToArray ());
 
         public virtual string NameOf (T id) => TryNameOf (id, out string name) ? name : id.ToString ();
 
         public virtual bool TryNameOf (T id, out string name) {
-            var property = FlagFields.FirstOrDefault (p => p.PropertyType == typeof (T) && p.GetValue (this).Equals (id));
+            var property = FlagFields.FirstOrDefault (p => p.PropertyType == typeof (T) && p.GetValue (null).Equals (id));
             name = property?.Name;
             return property != default;
+        }
+
+        internal void AddNames<F>(F other) where F : Flags<T>{
+            var fields = FlagFields.ToList();
+            foreach (var field in other.FlagFields) {
+                fields.Add(field);
+            }
+            _flagFields = fields.Distinct().ToArray();
+        }
+
+        public Flags<T> WithNames<F>() where F : Flags<T>, new() {
+            AddNames(new F());
+            return this;
+
         }
 
         private string DisplayName (Guid id) {
@@ -201,21 +228,50 @@ namespace Limaki.Common.Collections {
 
         public static F With<F> (params F[] others) where F : Flags<T>, new() {
             var f = new F ();
-            foreach (var other in others)
+            foreach (var other in others.Where (o => o != default))
                 f.Add (other);
             return f;
         }
+
+        internal static F Intersect<F> (F source, F dest, params IEnumerable<T>[] others) where F : Flags<T> {
+            if (others == default || source == default || dest == default)
+                return dest;
+            dest._flags.UnionWith (source._flags);
+            foreach (var other in others) {
+                if (other != default)
+                    dest._flags.IntersectWith (other);
+                else {
+                    dest._flags.Clear ();
+                    break;
+                }
+            }
+
+            return dest;
+
+        }
+
+
     }
 
     public static class FlagsExtensions {
 
+        public static F _nextversionof_With<F,T> (this F it, params IEnumerable<T>[] others) where F : Flags<T>, new() {
+            var f = new F ();
+            f.Add (it);
+            foreach (var other in others.Where (o => o != default))
+                f.Add (other);
+            return f;
+        }
+
         public static F With<F, T> (this F it, params T[] flags) where F : Flags<T>, new() {
-            var f = new F (); f.Add (it); f.Add (flags); return f;
+            var f = new F (); f.AddNames(it); f.Add (it); f.Add (flags); return f;
         }
 
         public static F WithOut<F, T> (this F it, params T[] flags) where F : Flags<T>, new() {
             var f = new F (); f.Add (it); f.Remove (flags); return f;
         }
+
+        public static F IntersectWith<F,T> (this F c1, params IEnumerable<T>[] others) where F : Flags<T>, new() => Flags<T>.Intersect (c1, new F (), others);
 
     }
 }

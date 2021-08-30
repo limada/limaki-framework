@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
-using Limaki.Data;
+using Limaki.Common;
 
 namespace Limaki.Usecases {
 

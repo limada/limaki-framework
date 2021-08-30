@@ -15,15 +15,22 @@
 using System;
 
 namespace Limaki.UnitsOfWork.Service.Client {
-    
+
+    /// <summary>
+    /// Service facade.
+    /// used to consume a servcice on client side
+    /// </summary>
     public interface IClientUsecase {
         Store Store { get; }
         void SaveChanges ();
+
         string ServiceInfo ();
+        string Connect();
+
         void SaveChanges (Store store);
-        void Connect ();
         void LoadOnStart ();
         void ClearOnEnd ();
+
         Type ServiceType { get; }
     }
 

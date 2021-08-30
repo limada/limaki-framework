@@ -13,19 +13,23 @@
  */
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Limaki.Common.Collections {
 
     public class GuidFlags : Flags<Guid> {
 
-        public GuidFlags () { }
-        public GuidFlags (params Guid [] flags) { Add (flags); }
-        public static GuidFlags __ (params Guid [] flags) => new GuidFlags (flags);
-        public static implicit operator GuidFlags (Guid value) => new GuidFlags (value);
-        public static implicit operator GuidFlags (Guid [] value) => new GuidFlags (value);
+        public GuidFlags() { }
+        public GuidFlags(params Guid[] flags) { Add(flags); }
+        public static GuidFlags __(params Guid[] flags) => new GuidFlags(flags);
+        public static implicit operator GuidFlags(Guid value) => new GuidFlags(value);
+        public static implicit operator GuidFlags(Guid[] value) => new GuidFlags(value);
 
-        public static GuidFlags operator | (GuidFlags c1, Guid g) => With (c1, g);
-        public static GuidFlags operator | (GuidFlags c1, GuidFlags g) => With (c1, g);
+        public static GuidFlags operator |(GuidFlags c1, Guid g) => With(c1, g);
+        public static GuidFlags operator |(GuidFlags c1, GuidFlags g) => With(c1, g);
+        public static GuidFlags operator |(GuidFlags c1, IEnumerable<Guid> g) => With(c1, g?.ToArray());
 
+        public new GuidFlags WithNames<F>() where F : GuidFlags, new() => (GuidFlags)base.WithNames<F>();
     }
 }

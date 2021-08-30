@@ -35,7 +35,7 @@ namespace Limaki {
             Init ();
         }
 
-        public static void Add (string filename) {
+        public static void AddFromFile (string filename) {
 
             if (!File.Exists (filename))
                 return;
@@ -43,6 +43,14 @@ namespace Limaki {
             using (var reader = new StreamReader (filename)) {
                 Add (reader);
             }
+        }
+
+        public static void Add (string resource) {
+
+            if (resource == null)
+                return;
+
+            Add (new StringReader (resource));
         }
 
         public static void Add (byte [] resource) {

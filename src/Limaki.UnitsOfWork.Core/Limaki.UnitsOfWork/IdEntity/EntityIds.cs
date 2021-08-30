@@ -17,25 +17,26 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using Limaki.Common.Reflections;
+using Limaki.UnitsOfWork.IdEntity.Model;
 
 namespace Limaki.UnitsOfWork.IdEntity {
 
     public abstract class EntityIds {
 
-        public abstract Guid GetIndex (string name);
+        public abstract Guid GetIndex (Type type);
 
         /// <summary>
-        /// index = Relations
-        /// Count = count of items
+        /// key = Guid of Type
+        /// Value = <see cref="IIdEntity.Id"/>s
         /// </summary>
         [DataMember]
         public IDictionary<Guid, IEnumerable<Guid>> Ids { get; set; } = new Dictionary<Guid, IEnumerable<Guid>> ();
 
         public IEnumerable<Guid> IdsOf<T> () {
-
-            var name = new TypeInfo { Type = typeof (T) }.ImplName;
-
-            if (Ids.TryGetValue (GetIndex (name), out var ids)) {
+            if (typeof (T).IsInterface) {
+                // TODO: get dto-type
+            }
+            if (Ids.TryGetValue (GetIndex (typeof (T)), out var ids)) {
                 return ids;
             }
             return new Guid[0];

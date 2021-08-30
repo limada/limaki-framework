@@ -16,6 +16,7 @@
 namespace Limaki.Common.IOC {
 
     public class ApplicationContext : IApplicationContext {
+
         IPool _pool = new Pool();
         public virtual IPool Pool {
             get {

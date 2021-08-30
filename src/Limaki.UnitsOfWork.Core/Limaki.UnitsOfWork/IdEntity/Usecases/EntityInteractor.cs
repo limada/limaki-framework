@@ -1,3 +1,17 @@
+/*
+ * Limaki 
+ * 
+ * This code is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License version 2 only, as
+ * published by the Free Software Foundation.
+ * 
+ * Author: Lytico
+ * Copyright (C) 2016 - 2019 Lytico
+ *
+ * http://www.limada.org
+ * 
+ */
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -46,7 +60,11 @@ namespace Limaki.UnitsOfWork.IdEntity.Usecases {
                 return collection;
             }
 
-            throw new ArgumentException ($"{nameof (DomainOrganizer)}.{nameof (AddToRelation)} does not support {relations?.GetType ()}");
+            if (relations == null) {
+                return relations;
+            }
+
+            throw new ArgumentException ($"{nameof (DomainOrganizer)}.{nameof (RemoveFromRelation)} does not support {relations?.GetType ()}");
         }
 
         public virtual void SetRelations (IdentityMap map) { }
@@ -54,20 +72,20 @@ namespace Limaki.UnitsOfWork.IdEntity.Usecases {
         public virtual void SetRelationIds (IdentityMap map) { }
 
         public virtual void SetRelationId<E, M> (E entity, Expression<Func<E, M>> member) where M : IIdEntity {
-            
+
             var amember = new EntityMember<E, M> (member).GetMember (entity);
-            var prop = typeof (E).GetProperty($"{(member.Body as MemberExpression).Member.Name}Id");
+            var prop = typeof (E).GetProperty ($"{(member.Body as MemberExpression).Member.Name}Id");
             var param = Expression.Variable (typeof (E), "entity");
             var memberId = Expression.Lambda<Func<E, Guid>> (Expression.Property (param, prop), param);
             new EntityMember<E, Guid> (memberId).SetMember (entity, amember?.Id ?? Guid.Empty);
         }
 
-        public virtual void SetRelation<E, M> (E entity, Expression<Func<E, M>> member, M value) where M : IIdEntity { 
-            new EntityMember<E, M> (member).SetMember (entity,value);
+        public virtual void SetRelation<E, M> (E entity, Expression<Func<E, M>> member, M value) where M : IIdEntity {
+            new EntityMember<E, M> (member).SetMember (entity, value);
             SetRelationId (entity, member);
         }
 
-        public virtual ILock GetLock<E> (E entity) where E : IIdEntity => new Lock { Key = entity.Id, MachineName = Environment.MachineName , UserName = Environment.UserName };
+        public virtual ILock GetLock<E> (E entity) where E : IIdEntity => new Lock { Key = entity.Id, MachineName = Environment.MachineName, UserName = Environment.UserName };
 
     }
 
@@ -98,9 +116,9 @@ namespace Limaki.UnitsOfWork.IdEntity.Usecases {
 
         public virtual E Create (Store store) => store.AddCreated (store.Create<E> ());
 
-		public virtual void Remove (Store store, E entity) => store.Remove (entity);
+        public virtual void Remove (Store store, E entity) => store.Remove (entity);
 
-		public virtual bool IsEmpty (E entity) => false;
+        public virtual bool IsEmpty (E entity) => false;
 
         public virtual IEnumerable<(bool valid, FormattableString message)> IsValid<T> (T entity) {
             
@@ -109,17 +127,17 @@ namespace Limaki.UnitsOfWork.IdEntity.Usecases {
 
     }
 
-    public class EntityMember<E, M>  {
+    public class EntityMember<E, M> {
 
         public EntityMember (Expression<Func<E, M>> member) {
             MemberExpression = member;
             MemberName = (MemberExpression.Body as MemberExpression).Member.Name;
-            if (!getters.TryGetValue (MemberName, out var _getMember)){
+            if (!getters.TryGetValue (MemberName, out var _getMember)) {
                 _getMember = member.Compile ();
                 getters[MemberName] = _getMember;
             }
             GetMember = _getMember;
-            if (!setters.TryGetValue (MemberName, out var _setMember)){
+            if (!setters.TryGetValue (MemberName, out var _setMember)) {
                 var paras = new ParameterExpression[] { Expression.Variable (typeof (E), "item"), Expression.Variable (typeof (M), "member") };
                 var setterExpression = Expression.Lambda (
                     typeof (Action<E, M>),

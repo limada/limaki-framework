@@ -12,6 +12,7 @@
  * 
  */
 
+
 namespace Limaki.Common.IOC {
 
     public interface IApplicationContext {
@@ -27,8 +28,11 @@ namespace Limaki.Common.IOC {
     }
 
     public static class ApplicationContextExtensions {
+
         public static T Pooled<T>(this IApplicationContext c) {
             return c.Pool.TryGetCreate<T>();
         }
+
+
     }
 }

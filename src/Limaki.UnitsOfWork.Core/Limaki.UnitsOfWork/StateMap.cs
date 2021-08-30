@@ -60,20 +60,20 @@ namespace Limaki.UnitsOfWork {
         public ICollection<T> Removed<T> () => Collection<T> (removed);
 
         public void AddCreated<T>(T item) {
-            if (item != default) {
+            if (item != null) {
                 Collection<T>(created).Add(item);
             }
         }
 
         public void Update<T>(T item) {
-            if (item != default) {
+            if (item != null) {
                 Collection<T>(updated).Add(item);
                 //Collection<T>(created).Remove(item);
             }
         }
 
         public void Remove<T>(T item) {
-            if (item != default) {
+            if (item != null) {
                 if (!Created<T>().Contains(item)) {
                     Collection<T>(removed).Add(item);
                 }

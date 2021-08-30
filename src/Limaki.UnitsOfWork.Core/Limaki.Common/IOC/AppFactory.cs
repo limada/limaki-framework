@@ -28,10 +28,10 @@ namespace Limaki.Common.IOC {
 
         bool backendApplied = false;
         public AppFactory (IBackendContextResourceLoader backendContextResourceLoader) {
-            Create(backendContextResourceLoader);
+            Configure(backendContextResourceLoader);
         }
 
-        protected virtual void Create(IBackendContextResourceLoader backendContextResourceLoader){ 
+        protected virtual void Configure(IBackendContextResourceLoader backendContextResourceLoader){ 
    
             var resourceLoader = Activator.CreateInstance(typeof(T),new object[]{backendContextResourceLoader}) as T;
             Registry.ConcreteContext = resourceLoader.CreateContext();
@@ -52,7 +52,7 @@ namespace Limaki.Common.IOC {
             return true;
         }
 
-        public virtual void ResolveAssembly (Assembly assembly) {
+        public virtual void ResolveAssembly (Assembly assembly, IApplicationContext context = default) {
             try {
                 Debug.WriteLine ($"loading assembly {assembly.FullName}");
                 foreach (var type in assembly.GetTypes().Where(
@@ -64,7 +64,7 @@ namespace Limaki.Common.IOC {
 
                     if (type.GetConstructors().Any(tc => tc.GetParameters().Length == 0)) {
                         var loader = Activator.CreateInstance(type) as IContextResourceLoader;
-                        loader.ApplyResources(Registry.ConcreteContext);
+                        loader.ApplyResources(context ?? Registry.ConcreteContext);
                     }
 
                 }

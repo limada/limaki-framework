@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Limaki.Imaging {
     /// <summary>
-    /// found at: http://www.codeproject.com/KB/GDI-plus/DIBtoBitmap.aspx?fid=355741&df=90&mpp=25&noise=3&sort=Position&view=Quick&select=2609843#xx2609843xx
+    /// found at: <seealso cref="http://www.codeproject.com/KB/GDI-plus/DIBtoBitmap.aspx?fid=355741&df=90&mpp=25&noise=3&sort=Position&view=Quick&select=2609843#xx2609843xx"/> 
     /// </summary>
     public class BitmapFromDibStream:Stream {
         Stream dib = null;

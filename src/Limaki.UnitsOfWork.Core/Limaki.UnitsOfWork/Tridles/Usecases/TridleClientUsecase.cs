@@ -23,18 +23,18 @@ namespace Limaki.UnitsOfWork.Tridles.Usecases {
     public class TridleClientUsecase {
 
         public Store Store { get; set; }
-        public Func<Store, ITridleQueryPredicates, ITridleContainer> LoadRequest { get; set; }
+        public Func<Store, ITridleCriterias, ITridleContainer> LoadRequest { get; set; }
         public Action<Store> SaveChanges { get; set; }
-        public Func<ITridleQueryPredicates> CreatePredicates { get; set; }
+        public Func<ITridleCriterias> CreateCriterias { get; set; }
 
         GuidFlags _resolve = null;
         GuidFlags Resolve {
             get {
                 if (_resolve == null) {
-                    var preds = CreatePredicates ();
+                    var preds = CreateCriterias ();
                     var type = preds.GetType ()
                         .GetProperties ()
-                                    .Where (p => p.DeclaringType == preds.GetType () && p.Name == nameof (ITridleQueryPredicates.Resolve)).First ().PropertyType;
+                                    .Where (p => p.DeclaringType == preds.GetType () && p.Name == nameof (ITridleCriterias.Resolve)).First ().PropertyType;
                     _resolve = (GuidFlags)Activator.CreateInstance (type);
                     _resolve.Add(
                         _resolve.FlagOf (nameof (StringTridle)),
@@ -49,7 +49,7 @@ namespace Limaki.UnitsOfWork.Tridles.Usecases {
         public IStringTridle GetStringTridle (Store store, Guid key, Guid member) {
             var tridle = store.Item<IStringTridle> (t => t.Key == key && t.Member == member);
             if (tridle == null) {
-                var preds = CreatePredicates ();
+                var preds = CreateCriterias ();
                 preds.Resolve = Resolve;
                 preds.StringTridles = t => t.Key == key && t.Member == member;
                 LoadRequest (store, preds);
@@ -77,7 +77,7 @@ namespace Limaki.UnitsOfWork.Tridles.Usecases {
             if (tridle != null)
                 return tridle;
 
-            var preds = CreatePredicates ();
+            var preds = CreateCriterias ();
             preds.Resolve = Resolve;
             preds.NumberTridles = t => t.Key == key && t.Member == member;
             if (store == null) {

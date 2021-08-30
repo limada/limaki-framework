@@ -47,7 +47,10 @@ namespace Limaki.Common {
             return new MemoryStream (buffer, 0, buffer.Length, true);
         }
 
-        public static String AsUnicodeSting (this byte[] source) => Encoding.Unicode.GetString (source);
+        public static string AsUnicodeString (this byte[] source) => Encoding.Unicode.GetString (source);
+        public static string AsUtf8String (this byte[] source) => Encoding.UTF8.GetString (source);
+        public static string AsAsciiString (this byte[] source) => Encoding.ASCII.GetString (source);
+        public static string AsAnsiString (this byte[] source) => Encoding.GetEncoding (1252).GetString (source);
 
         public static byte[] GetBuffer (this Stream stream, int buflen = -1) {
             if (stream == null)
