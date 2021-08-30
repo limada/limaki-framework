@@ -1,10 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <ReleaseVersion>19.8.0.1</ReleaseVersion>
   </PropertyGroup>
   <PropertyGroup>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>1591</NoWarn>
   </PropertyGroup>
   <PropertyGroup>
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
@@ -13,14 +14,17 @@
     <RootNamespace></RootNamespace>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <LangVersion>7.3</LangVersion>
+    <LangVersion>8</LangVersion>
     <DefineConstants>TRACE;DEBUG;NETSTANDARD;NETSTANDARD2_0</DefineConstants>
+    <NoWarn>1701;1702;1591</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <LangVersion>7.3</LangVersion>
+    <LangVersion>8.0</LangVersion>
+    <DebugType></DebugType>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="System.ComponentModel.Annotations" Version="4.5.0" />
+    <PackageReference Include="System.ComponentModel.Annotations" Version="4.7.0" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="5.0.0" />
   </ItemGroup>
   <ItemGroup Condition="$(DefineConstants.Contains('WCF'))">
   <PackageReference Include="System.ServiceModel.Primitives" Version="4.5.3" />
@@ -38,7 +42,7 @@
     <Folder Include="Limaki.UnitsOfWork\Hash\Model\" />
     <Folder Include="Limaki.UnitsOfWork\Hash\Model\Dto\" />
     <Folder Include="Limaki.UnitsOfWork\Hash\Usecases\" />
-    <Folder Include="Limaki.UnitsOfWork\Tridles\Data\" />
+    <Folder Include="Limaki.UnitsOfWork\Tridles\Repository\" />
     <Folder Include="Limaki.UnitsOfWork\Content\Usecases\" />
     <Folder Include="Limaki.UnitsOfWork\Content\Model\" />
     <Folder Include="Limaki.UnitsOfWork\Content\Model\Dto\" />
@@ -47,6 +51,16 @@
     <Folder Include="Limaki.UnitsOfWork\IdEntity\Model\" />
     <Folder Include="Limaki.UnitsOfWork\IdEntity\Model\Dto\" />
     <Folder Include="Limaki.UnitsOfWork\IdEntity\Usecases\" />
-    <Folder Include="Limaki.UnitsOfWork\IdEntity\Data\" />
+    <Folder Include="Limaki.UnitsOfWork\IdEntity\Repository\" />
+    <Folder Include="Limaki.UnitsOfWork\SanityCheck\" />
+    <Folder Include="Limaki.Common\Linqish\MoreLinq\" />
+    <Folder Include="Limaki.Common\Phonetic\" />
+    <Folder Include="3rdParty\PhoneticNet\" />
+    <Folder Include="Limaki.Common\Phonetic\DiacritPhonetics\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\AssemblyInfo.Shared.cs">
+      <Link>Properties\AssemblyInfo.Shared.cs</Link>
+    </Compile>
   </ItemGroup>
 </Project>
