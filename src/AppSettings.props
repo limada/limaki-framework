@@ -1,0 +1,9 @@
+<Project>
+  <Target Name="CopySettingsBuild" BeforeTargets="BeforeBuild">
+    <Copy SourceFiles="appsettings.json;" DestinationFiles="$(TargetDir)$(AssemblyName).settings.json;" />
+  </Target>
+  <Target Name="CopySettingsPublish" BeforeTargets="Publish">
+    <Copy SourceFiles="appsettings.json;" DestinationFiles="$(PublishDir)$(AssemblyName).settings.json;" />
+    <Delete Files="$(PublishDir)appsettings.json" />
+  </Target>
+</Project>
